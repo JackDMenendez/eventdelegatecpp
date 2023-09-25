@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+/out
+/sandbox/.vs
+/sandbox/.vscode
+/.vs
+/sandbox/CMakeFiles
+/sandbox/out/build/x64-Debug
+/sandbox/_deps
