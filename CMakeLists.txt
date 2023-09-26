@@ -13,6 +13,7 @@ project (eventdelegatecpp
          VERSION 0.0.2
          LANGUAGES CXX)
 
+include(CTest)
 include(cmake/eventdelegateOptions.cmake)
 
 # ---- Warning guard ----
@@ -23,19 +24,31 @@ if(eventdelegatecpp_INCLUDE_WITHOUT_SYSTEM)
   set(eventdelegatecpp_warning_guard "")
 endif()
 
+# tell CMake to use CTest extension
+enable_testing()
+
 # ---- Library ----
 
 set(eventdelegatecpp_sources
         "source/default_sender.cpp"
-        ) 
+) 
 
 set(eventdelegatecpp_headers
         "include/event_delegate.h"
-         
         "include/senders/default_sender.h" 
         "include/util/ed.h" 
         "include/util/ed_defs.h" 
         "include/util/forward.h"
+)
+
+# ---- Test Exec ----
+
+set(eventdelegatecpp_test_source
+        "test/source/tests/SubscriptionTest.cpp"
+ "test/include/util/ghelper.h")
+
+set(eventdeletatecpp_test_headers
+        "test/include/util/unit_test.h"
 )
 
 add_library(eventdelegatecpp ${eventdelegatecpp_headers} ${eventdelegatecpp_sources})
@@ -58,6 +71,48 @@ set_target_properties(eventdelegatecpp PROPERTIES
 # ----
 # This is the place to insert required packages and libraries.
 # ----
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+
+# Now simply link against gtest or gtest_main as needed. Eg
+add_executable(EDUnitGTest
+     ${eventdelegatecpp_test_source} 
+     ${eventdelegatecpp_test_headers} 
+     ${eventdelegatecpp_headers}
+)
+target_include_directories(EDUnitGTest ${eventdelegatecpp_warning_guard}
+        PUBLIC
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+)
+target_include_directories(EDUnitGTest ${eventdelegatecpp_warning_guard}
+        PUBLIC
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/include>"
+)
+target_compile_features(EDUnitGTest PUBLIC cxx_std_20)
+target_link_libraries(EDUnitGTest gtest_main)
+add_test(NAME unit_test COMMAND EDUnitGTest)
 
 target_compile_definitions(eventdelegatecpp
         PRIVATE $<$<STREQUAL:$<TARGET_PROPERTY:eventdelegatecpp,TYPE>,SHARED_LIBRARY>:CRCPP_EXPORT_API>

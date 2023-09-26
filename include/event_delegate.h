@@ -24,14 +24,14 @@ template <typename T, typename... Args>
 struct Call<T, void(Args...)> : ICall<void(Args...)> {
   T d_callback;
   template <typename S>
-  Call(S&& callback) : d_callback(forward<S>(callback)) {}
+  Call(S&& callback) : d_callback(std::forward<S>(callback)) {}
 
   auto do_cmp(ICall<void(Args...)>* other) noexcept -> bool {
     Call<T, void(Args...)>* tmp = dynamic_cast<Call<T, void(Args...)>*>(other);
     return tmp && this->d_callback == tmp->d_callback;
   }
   void do_call(Args... args) noexcept {
-    return this->d_callback(forward<Args>(args)...);
+    return this->d_callback(std::forward<Args>(args)...);
   }
 };
 
@@ -51,12 +51,12 @@ struct EventSubscription<void(Args...)> {
   template <typename T>
   auto operator+=(T&& callback) -> EventSubscription& {
     this->d_callbacks.emplace_back(
-        new Call<T, void(Args...)>(forward<T>(callback)));
+        new Call<T, void(Args...)>(std::forward<T>(callback)));
     return *this;
   }
   template <typename T>
   auto operator-=(T&& callback) -> EventSubscription& {
-    Call<T, void(Args...)> tmp(forward<T>(callback));
+    Call<T, void(Args...)> tmp(std::forward<T>(callback));
     auto it = remove_if(this->d_callbacks.begin(), this->d_callbacks.end(),
                         [&](std::unique_ptr<ICall<void(Args...)>>& other) {
                           return tmp.do_cmp(other.get());
@@ -83,7 +83,7 @@ class member_call {
   member_call(Class* object, RC (Class::*member)(Args...))
       : d_object(object), d_member(member) {}
   auto operator()(Args... args) -> RC {
-    return (this->d_object->*this->d_member)(forward<Args>(args)...);
+    return (this->d_object->*this->d_member)(std::forward<Args>(args)...);
   }
   auto operator==(member_call const& other) const -> bool {
     return this->d_object == other.d_object && this->d_member == other.d_member;

@@ -4,5 +4,11 @@
 #include "forward.h"
 // Provide the root namespace.
 #define EDCPP eventdelegatecpp
+#ifndef STRINGIFY
+#define STRINGIFY(s) #s
+#endif
+#ifndef FILELINE
+#define FILELINE(line) __FILE__ ":" STRINGIFY(line)
+#endif
 #endif
 
