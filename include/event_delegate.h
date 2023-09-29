@@ -58,7 +58,7 @@ class member_call {
   }
 };
 /*
-template<typename Anon>* 
+template<typename Anon>*
 class lambda_call : public function<Anon> {
 public:
                 lambda_call(Anon object) : d_object(object) {
@@ -90,8 +90,8 @@ class Delegate<void(Args...)> {
   Delegate(T&& callback)
       : call_back(std::make_shared<Call<T, void(Args...)>>(
             std::forward<T>(callback))) {}
-  template <typename RC, typename Class, typename... Args>
-  Delegate(Class& object, RC(Class::* method)(Args...))
+  template <typename RC, typename Class>
+  Delegate(Class& object, RC (Class::*method)(Args...))
       : Delegate(member(object, method)) {}
   void operator()(Args... args) { call_back->do_call(args...); }
   ~Delegate() noexcept { std::cout << "~Delegate()\n"; }
