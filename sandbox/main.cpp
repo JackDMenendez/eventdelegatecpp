@@ -27,7 +27,7 @@ struct TestFixture1 {
   }
 };
 int main(int argc, char** argv) {
-  EventSubscription<void(int*)> event_subscription;
+  Event<void(int*)> event_subscription;
 
   int testCount = 0;
   int testCount2 = 0;

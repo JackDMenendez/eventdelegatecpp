@@ -59,7 +59,7 @@ target_include_directories(eventdelegatecpp
         PUBLIC
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
-target_compile_features(eventdelegatecpp PUBLIC cxx_std_20)
+target_compile_features(eventdelegatecpp PUBLIC cxx_std_23)
 
 set_target_properties(eventdelegatecpp PROPERTIES
         CXX_VISIBILITY_PRESET hidden
@@ -110,7 +110,7 @@ target_include_directories(EDUnitGTest ${eventdelegatecpp_warning_guard}
         PUBLIC
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/include>"
 )
-target_compile_features(EDUnitGTest PUBLIC cxx_std_20)
+target_compile_features(EDUnitGTest PUBLIC cxx_std_23)
 target_link_libraries(EDUnitGTest gtest_main)
 add_test(NAME unit_test COMMAND EDUnitGTest)
 

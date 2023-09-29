@@ -1,11 +1,14 @@
 #ifndef GHELPER_H
 #define GHELPER_H
 #include <gtest/gtest.h>
+#include <iostream>
 /**
  * @brief A dummy return type to make TEST functions look like functions to the
  * documentation software.
  */
 #define TVOID
+#define MTESTID
+#define MTESTCASENAME
 #ifndef MSTRINGIFY
 #define MSTRINGIFY(x) #x
 #define MTOSTRING(x) MSTRINGIFY(x)
@@ -70,7 +73,7 @@ auto probe(const std::string id, const T lhs, const D rhs, probeoperator prbop)
   probe(MTOSTRING(PID), PLHS, PRHS, probeoperator::equal)
 #define MISNOTEQUAL(PID, PLHS, PRHS) \
   probe(MTOSTRING(PID), PLHS, PRHS, probeoperator::not_equal)
-#define TEST_UT1(testid, test_case_name) TEST(testid, test_case_name##T1)
+#define TEST_UT1(testid, test_case_name) TEST(testid, test_case_name##UT1)
 #define TEST_UT2(testid, test_case_name) TEST(testid, test_case_name##UT2)
 #define TEST_UT3(testid, test_case_name) TEST(testid, test_case_name##UT3)
 #define TEST_UT4(testid, test_case_name) TEST(testid, test_case_name##UT4)
