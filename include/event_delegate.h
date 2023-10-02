@@ -41,14 +41,32 @@ struct Call<T, void(Args...)> : ICall<void(Args...)> {
 };
 template <typename RC, typename Class, typename... Args>
 class member_call {
-  Class* d_object;
-  RC (Class::*d_member)(Args...);
+  union {
+    Class* d_object;
+    const Class* c_object;
+    volatile Class* v_object;
+  };
+  union {
+    RC (Class::*d_member)(Args...);
+    RC (Class::*c_member)(Args...) const;
+    RC (Class::*v_member)(Args...) volatile;
+  };
 
  public:
+  member_call(const Class* object, RC (Class::*member)(Args...) const)
+      : c_object(object), c_member(member) {}
+  member_call(const Class* object, RC (Class::*member)(Args...) volatile)
+      : v_object(object), v_member(member) {}
   member_call(Class* object, RC (Class::*member)(Args...))
       : d_object(object), d_member(member) {}
   auto operator()(Args... args) -> RC {
     return (this->d_object->*this->d_member)(std::forward<Args>(args)...);
+  }
+  auto operator()(Args... args) const -> RC {
+    return (this->c_object->*this->c_member)(std::forward<Args>(args)...);
+  }
+  auto operator()(Args... args) volatile -> RC {
+    return (this->v_object->*this->v_member)(std::forward<Args>(args)...);
   }
   auto operator==(member_call const& other) const -> bool {
     return this->d_object == other.d_object && this->d_member == other.d_member;
@@ -79,6 +97,11 @@ auto member(Class& object, RC (Class::*member)(Args...))
     -> member_call<RC, Class, Args...> {
   return member_call<RC, Class, Args...>(&object, member);
 }
+template <typename RC, typename Class, typename... Args>
+auto member(const Class& object, RC (Class::*member)(Args...) const)
+    -> member_call<RC, Class, Args...> {
+  return member_call<RC, Class, Args...>(&object, member);
+}
 template <typename Signature>
 class Delegate;
 template <typename... Args>
@@ -87,12 +110,16 @@ class Delegate<void(Args...)> {
 
  public:
   template <typename T>
+  // requires std::is_function<T>::value
   Delegate(T&& callback)
       : call_back(std::make_shared<Call<T, void(Args...)>>(
             std::forward<T>(callback))) {}
   template <typename RC, typename Class>
   Delegate(Class& object, RC (Class::*method)(Args...))
       : Delegate(member(object, method)) {}
+  template <typename T>
+    requires std::is_class<T>::value
+  Delegate(T& lambda) {}
   void operator()(Args... args) { call_back->do_call(args...); }
   ~Delegate() noexcept { std::cout << "~Delegate()\n"; }
 };

@@ -9,9 +9,10 @@ namespace EDCPP::tests {
 void test_base_subscription_scenarios();
 }
 
-void f(int* ctr) {
+void basicTestFunction(int* ctr) {
   *ctr += 1;
 }
+using BasicDelegateFunction = void(int*);  // void __cdecl(int * __ptr64)
 void g(int* ctr) {
   *ctr += 2;
 }
@@ -20,7 +21,8 @@ void h(int* ctr) {
 }
 
 // ----------------------------------------------------------------------------
-
+// TODO Test volatile member functions
+// TODO Test const member functions
 struct TestFixture1 {
   int executeCount = 0;
   bool delegateFired = false;
@@ -35,13 +37,7 @@ struct TestFixture1 {
       onCount10();
     }
   }
-  void add2(int* ctr) {
-    executeCount += 2;
-    *ctr += 2;
-    if (executeCount == 10) {
-      onCount10();
-    }
-  }
+  void add2(int* ctr) const { *ctr += 2; }
   void Count10Reached() {
     delegateFired = true;
     MMSG("delegate fired");
@@ -55,15 +51,15 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
 
   int testCount = 0;
   int testCount2 = 0;
-  const int fixtureInstance0_initialcount = 0;
-  const int fixtureInstance1_initialcount = 1;
+  const int fixtureInstance0_initialcount = 1;
+  const int fixtureInstance1_initialcount = 2;
   TestFixture1 fixtureInstance0(fixtureInstance0_initialcount);
   TestFixture1 fixtureInstance1(fixtureInstance1_initialcount);
 
-  event += f;  // testCount=1
-  event += g;  // testCount=3
-  event += g;  // testCount=5
-  event += h;  // testCount=8
+  event += basicTestFunction;  // testCount=1
+  event += g;                  // testCount=3
+  event += g;                  // testCount=5
+  event += h;                  // testCount=8
 
   event +=
       member(fixtureInstance0,
@@ -84,8 +80,8 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
   //     *ctr += amount_to_add;
   // });
   const int run1Expected_testCount = 24;
-  const int run1Expected_fixtureInstance0 = 3;
-  const int run1Expected_fixtureInstance1 = 4;
+  const int run1Expected_fixtureInstance0 = 2;
+  const int run1Expected_fixtureInstance1 = 3;
   event(&testCount);
   TEST_PROBE(P1000, EXPECT_TRUE(run1Expected_testCount == testCount));
   TEST_PROBE(P1010, EXPECT_TRUE(run1Expected_fixtureInstance0 ==
@@ -104,14 +100,34 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
              &TestFixture1::increment);  // fixtureInstance1::executeCount=3
                                          // testCount=19
   const int run2Expected_testCount = 17;
-  const int run2Expected_fixtureInstance0 = 1;
-  const int run2Expected_fixtureInstance1 = 3;
+  const int run2Expected_fixtureInstance0 = 2;
+  const int run2Expected_fixtureInstance1 = 2;
   event(&testCount2);
   TEST_PROBE(P1030, EXPECT_TRUE(run2Expected_testCount == testCount2));
   TEST_PROBE(P1040, EXPECT_TRUE(run2Expected_fixtureInstance0 ==
                                 fixtureInstance0.executeCount));
   TEST_PROBE(P1050, EXPECT_TRUE(run2Expected_fixtureInstance1 ==
                                 fixtureInstance1.executeCount));
+}
+template <typename T>
+class DelegateFixture : public testing::Test {
+ public:
+  using CounterDelegate = Delegate<T>;
+};
+
+using BasicFunctionTypes = testing::Types<BasicDelegateFunction>;
+TYPED_TEST_SUITE(DelegateFixture, BasicFunctionTypes);
+
+TYPED_TEST(DelegateFixture, BasicFuntions) {
+  // To refer to typedefs in the fixture, add the 'typename TestFixture::'
+  // prefix.  The 'typename' is required to satisfy the compiler.
+
+  int test_counter = 0;
+  const int expected_count = 1;
+  using TestBasicFunctionsType = typename TestFixture::CounterDelegate;
+  TestBasicFunctionsType testDelegate(basicTestFunction);
+  testDelegate(&test_counter);
+  TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
 }
 /**
  * @test EDUnitGTest_Delegate_UT1_Test.
@@ -120,7 +136,7 @@ TVOID TEST_UT1(EDUnitGTest, Delegate) {
   using CounterDelegate = Delegate<void(int*)>;
   int test_counter = 0;
   const int expected_count = 1;
-  CounterDelegate delegate(f);
+  CounterDelegate delegate(basicTestFunction);
   delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
 }
@@ -144,4 +160,28 @@ TVOID TEST_UT3(EDUnitGTest, SimpleLambdaDelegate) {
   CounterDelegate lambda_delegate([](int* ctr) { *ctr += 10; });
   lambda_delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
+}
+TVOID TEST_UT4(EDUnitGTest, ComplexLambdaDelegate) {
+  struct TestFixture {
+    int delegateFired;
+    int count;
+    inline TestFixture() : delegateFired{0}, count{0} {
+      class __lambda_145_14 {
+       public:
+        inline /*constexpr */ void operator()(int* ctr) const {
+          *ctr = *ctr + 10;
+          __this->delegateFired++;
+        }
+
+       private:
+        TestFixture* __this;
+
+       public:
+        __lambda_145_14(TestFixture* _this) : __this{_this} {}
+      };
+
+      // Delegate<void(int*)> a(__lambda_145_14{this});
+      // a(&(this->count));
+    }
+  };
 }
