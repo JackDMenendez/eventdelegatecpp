@@ -53,11 +53,12 @@ class member_call {
   };
 
  public:
-  member_call(const Class* object, RC (Class::*member)(Args...) const)
+  member_call(const Class* object, RC (Class::*member)(Args...) const) noexcept
       : c_object(object), c_member(member) {}
-  member_call(const Class* object, RC (Class::*member)(Args...) volatile)
+  member_call(const Class* object,
+              RC (Class::*member)(Args...) volatile) noexcept
       : v_object(object), v_member(member) {}
-  member_call(Class* object, RC (Class::*member)(Args...))
+  member_call(Class* object, RC (Class::*member)(Args...)) noexcept
       : d_object(object), d_member(member) {}
   auto operator()(Args... args) -> RC {
     return (this->d_object->*this->d_member)(std::forward<Args>(args)...);
@@ -68,12 +69,13 @@ class member_call {
   auto operator()(Args... args) volatile -> RC {
     return (this->v_object->*this->v_member)(std::forward<Args>(args)...);
   }
-  auto operator==(member_call const& other) const -> bool {
+  auto operator==(member_call const& other) const noexcept -> bool {
     return this->d_object == other.d_object && this->d_member == other.d_member;
   }
-  auto operator!=(member_call const& other) const -> bool {
+  auto operator!=(member_call const& other) const noexcept -> bool {
     return !(*this == other);
   }
+  ~member_call() noexcept { std::cout << "~member_call()\n"; }
 };
 /*
 template<typename Anon>*
@@ -109,17 +111,33 @@ class Delegate<void(Args...)> {
   std::shared_ptr<ICall<void(Args...)>> call_back;
 
  public:
+  /**
+   * @brief Handles functions excluding lambdas and member functions.
+   */
   template <typename T>
-  // requires std::is_function<T>::value
+  Delegate(T&& callback)
+    requires std::is_function<typename std::remove_reference<T>::type>::value
+      : call_back(std::make_shared<Call<T, void(Args...)>>(
+            std::forward<T>(callback))) {}
+  /** Handles member functions include const and volatile */
+  template <typename RC, typename Class>
+    requires !std::is_invocable<
+        typename std::remove_reference<Class>::type>::value
+             Delegate(Class & object, RC (Class::*method)(Args...))
+      : Delegate(member(object, method)) {}
+  /** Simple lambdas */
+  template <typename T>
+    requires(!std::is_function<
+                typename std::remove_reference<T>::type>::value) &&
+            std::is_invocable<typename std::remove_reference<T>::type,
+                              Args...>::value
   Delegate(T&& callback)
       : call_back(std::make_shared<Call<T, void(Args...)>>(
             std::forward<T>(callback))) {}
-  template <typename RC, typename Class>
-  Delegate(Class& object, RC (Class::*method)(Args...))
-      : Delegate(member(object, method)) {}
-  template <typename T>
-    requires std::is_class<T>::value
-  Delegate(T& lambda) {}
+  // template <typename T>
+  //   requires std::is_class<typename std::remove_reference<T>::type>::value &&
+  //            std::is_invocable<T>::value
+  // Delegate(T& lambda) {}
   void operator()(Args... args) { call_back->do_call(args...); }
   ~Delegate() noexcept { std::cout << "~Delegate()\n"; }
 };

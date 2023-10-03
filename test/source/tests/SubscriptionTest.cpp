@@ -13,7 +13,13 @@ void basicTestFunction(int* ctr) {
   *ctr += 1;
 }
 using BasicDelegateFunction = void(int*);  // void __cdecl(int * __ptr64)
-void g(int* ctr) {
+/**
+ * For testing with noexcept
+ *
+ * The noexcept keyword does not change a function type but we test for it
+ * anyway so we know if something changes.
+ */
+void BasicDelegateFunctionNoexcept(int* ctr) noexcept {
   *ctr += 2;
 }
 void h(int* ctr) {
@@ -56,10 +62,10 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
   TestFixture1 fixtureInstance0(fixtureInstance0_initialcount);
   TestFixture1 fixtureInstance1(fixtureInstance1_initialcount);
 
-  event += basicTestFunction;  // testCount=1
-  event += g;                  // testCount=3
-  event += g;                  // testCount=5
-  event += h;                  // testCount=8
+  event += basicTestFunction;              // testCount=1
+  event += BasicDelegateFunctionNoexcept;  // testCount=3
+  event += BasicDelegateFunctionNoexcept;  // testCount=5
+  event += h;                              // testCount=8
 
   event +=
       member(fixtureInstance0,
@@ -91,7 +97,7 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
   fixtureInstance0.executeCount = fixtureInstance0_initialcount;
   fixtureInstance1.executeCount = fixtureInstance1_initialcount;
   // removes all g from list
-  event -= g;  // testCount22
+  event -= BasicDelegateFunctionNoexcept;  // testCount22
   event -= member(
       fixtureInstance0,
       &TestFixture1::add2);  // fixtureInstance0::executeCount=1 testCount=20
@@ -123,11 +129,16 @@ TYPED_TEST(DelegateFixture, BasicFuntions) {
   // prefix.  The 'typename' is required to satisfy the compiler.
 
   int test_counter = 0;
-  const int expected_count = 1;
+  int expected_count = 1;
+
   using TestBasicFunctionsType = typename TestFixture::CounterDelegate;
   TestBasicFunctionsType testDelegate(basicTestFunction);
+  TestBasicFunctionsType testNoexceptDelegate(BasicDelegateFunctionNoexcept);
   testDelegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
+  testNoexceptDelegate(&test_counter);
+  expected_count += 2;
+  TEST_PROBE(P1010, EXPECT_EQ(test_counter, expected_count));
 }
 /**
  * @test EDUnitGTest_Delegate_UT1_Test.
