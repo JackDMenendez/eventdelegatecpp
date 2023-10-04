@@ -27,8 +27,8 @@ void h(int* ctr) {
 }
 
 // ----------------------------------------------------------------------------
-// TODO Test volatile member functions
-// TODO Test const member functions
+// TODO Test volatile GiftWrapper functions
+// TODO Test const GiftWrapper functions
 struct TestFixture1 {
   int executeCount = 0;
   bool delegateFired = false;
@@ -53,7 +53,7 @@ struct TestFixture1 {
 };
 
 TVOID TEST(EDUnitGTest, StandardDelegate) {
-  Event<void(int*)> event;
+  DirectEvent<void(int*)> event;
 
   int testCount = 0;
   int testCount2 = 0;
@@ -67,17 +67,17 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
   event += BasicDelegateFunctionNoexcept;  // testCount=5
   event += h;                              // testCount=8
 
-  event +=
-      member(fixtureInstance0,
-             &TestFixture1::increment);  // testCount=9
-                                         // fixtureInstance0::executeCount=1
+  event += GiftWrapper(
+      fixtureInstance0,
+      &TestFixture1::increment);  // testCount=9
+                                  // fixtureInstance0::executeCount=1
   event += member(
       fixtureInstance0,
       &TestFixture1::add2);  // testCount=11 fixtureInstance0::executeCount=3
-  event +=
-      member(fixtureInstance1,
-             &TestFixture1::increment);  // testCount=12
-                                         // fixtureInstance1::executeCount=2
+  event += GiftWrapper(
+      fixtureInstance1,
+      &TestFixture1::increment);  // testCount=12
+                                  // fixtureInstance1::executeCount=2
   event += member(
       fixtureInstance1,
       &TestFixture1::add2);  // testCount=14 fixtureInstance1::executeCount=4
@@ -101,10 +101,10 @@ TVOID TEST(EDUnitGTest, StandardDelegate) {
   event -= member(
       fixtureInstance0,
       &TestFixture1::add2);  // fixtureInstance0::executeCount=1 testCount=20
-  event -=
-      member(fixtureInstance1,
-             &TestFixture1::increment);  // fixtureInstance1::executeCount=3
-                                         // testCount=19
+  event -= GiftWrapper(
+      fixtureInstance1,
+      &TestFixture1::increment);  // fixtureInstance1::executeCount=3
+                                  // testCount=19
   const int run2Expected_testCount = 17;
   const int run2Expected_fixtureInstance0 = 2;
   const int run2Expected_fixtureInstance1 = 2;
@@ -168,7 +168,27 @@ TVOID TEST_UT3(EDUnitGTest, SimpleLambdaDelegate) {
   using CounterDelegate = Delegate<void(int*)>;
   int test_counter = 0;
   const int expected_count = 10;
-  CounterDelegate lambda_delegate([](int* ctr) { *ctr += 10; });
+  // [](int* ctr) { *ctr += 10; }
+  class __lambda_155_26 {
+   public:
+    inline /*constexpr */ void operator()(int* ctr) const { *ctr = *ctr + 10; }
+
+    using retType_155_26 = void (*)(int*);
+    inline constexpr operator retType_155_26() const noexcept {
+      return __invoke;
+    }
+
+   private:
+    static inline /*constexpr */ void __invoke(int* ctr) {
+      __lambda_155_26{}.operator()(ctr);
+    }
+
+   public:
+    // inline /*constexpr */ __lambda_155_26(__lambda_155_26 &&) noexcept =
+    // default;
+    // /*constexpr */ __lambda_155_26() = default;
+  };
+  CounterDelegate lambda_delegate(__lambda_155_26{});
   lambda_delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
 }
@@ -191,8 +211,8 @@ TVOID TEST_UT4(EDUnitGTest, ComplexLambdaDelegate) {
         __lambda_145_14(TestFixture* _this) : __this{_this} {}
       };
 
-      // Delegate<void(int*)> a(__lambda_145_14{this});
-      // a(&(this->count));
+      Delegate<void(int*)> a(__lambda_145_14{this});
+      a(&(this->count));
     }
   };
 }

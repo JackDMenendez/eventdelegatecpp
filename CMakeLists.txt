@@ -31,7 +31,7 @@ enable_testing()
 
 set(eventdelegatecpp_sources
         "source/default_sender.cpp"
-) 
+ "source/event_delegate.cpp") 
 
 set(eventdelegatecpp_headers
         "include/event_delegate.h"
