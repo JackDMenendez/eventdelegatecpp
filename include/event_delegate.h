@@ -194,6 +194,16 @@ auto GiftWrapper(const Class& object, RC (Class::*GiftWrapper)(Args...) const)
 
 static std::atomic_uint64_t ID_Generator = 0;
 static_assert(std::atomic_uint64_t::is_always_lock_free);
+template <typename T>
+concept BasicFunction =
+    std::is_function<typename std::remove_reference<T>::type>::value;
+template <typename Class>
+concept InstantiatedMethod =
+    !std::is_invocable<typename std::remove_reference<Class>::type>::value;
+template <typename T, typename... Args>
+concept LambdaFunction =
+    (!std::is_function<typename std::remove_reference<T>::type>::value) &&
+    std::is_invocable<typename std::remove_reference<T>::type, Args...>::value;
 
 template <typename Signature>
 class Delegate;
@@ -211,29 +221,25 @@ class Delegate<void(Args...)> {
    * @brief Handles functions excluding lambdas and GiftWrapper functions.
    */
   template <typename T>
-    requires std::is_function<typename std::remove_reference<T>::type>::value
+    requires BasicFunction<T>
   Delegate(T&& callback)
       : call_back(std::make_shared<CallBackWrapper<T, void(Args...)>>(
             std::forward<T>(callback))) {
     call_back->set_subscriber_id(ID_Generator++);
   }
-  /** 
+  /**
    * @brief Handles GiftWrapper functions for member functions including const
-   * and volatile 
+   * and volatile
    */
   template <typename RC, typename Class>
-    requires !std::is_invocable<
-        typename std::remove_reference<Class>::type>::value
-             Delegate(Class & object, RC (Class::*method)(Args...))
+    requires InstantiatedMethod<Class>
+  Delegate(Class& object, RC (Class::*method)(Args...))
       : Delegate(GiftWrapper(object, method)) {
     call_back->set_subscriber_id(ID_Generator++);
   }
   /** lambdas */
   template <typename T>
-    requires(!std::is_function<
-                typename std::remove_reference<T>::type>::value) &&
-            std::is_invocable<typename std::remove_reference<T>::type,
-                              Args...>::value
+    requires LambdaFunction<T, Args...>
   Delegate(T&& callback)
       : call_back(std::make_shared<CallBackWrapper<T, void(Args...)>>(
             std::forward<T>(callback))) {

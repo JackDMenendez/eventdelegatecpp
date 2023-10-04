@@ -4,7 +4,7 @@
 #include "util/unit_test.h"
 using namespace EDCPP::unit_test;
 using namespace EDCPP;
-
+// TODO test for void return requirement
 namespace EDCPP::tests {
 void test_base_subscription_scenarios();
 }
