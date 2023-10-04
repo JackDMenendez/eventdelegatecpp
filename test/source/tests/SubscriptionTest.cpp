@@ -141,7 +141,7 @@ TYPED_TEST(DelegateFixture, BasicFuntions) {
   TEST_PROBE(P1010, EXPECT_EQ(test_counter, expected_count));
 }
 /**
- * @test EDUnitGTest_Delegate_UT1_Test.
+ * @test EDUnitGTest_UT1Delegate_Test.
  */
 TVOID TEST_UT1(EDUnitGTest, Delegate) {
   using CounterDelegate = Delegate<void(int*)>;
@@ -192,27 +192,55 @@ TVOID TEST_UT3(EDUnitGTest, SimpleLambdaDelegate) {
   lambda_delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
 }
+/**
+ * @test EDUnitGTest_UT4ComplexLambdaDelegate_Test
+ *
+ * @brief Test a more complex lambda delegate.
+ *
+ * @details Used cpp-insights to generate lambda type so we can see what is
+ * going on.
+ */
 TVOID TEST_UT4(EDUnitGTest, ComplexLambdaDelegate) {
   struct TestFixture {
     int delegateFired;
     int count;
-    inline TestFixture() : delegateFired{0}, count{0} {
-      class __lambda_145_14 {
-       public:
-        inline /*constexpr */ void operator()(int* ctr) const {
-          *ctr = *ctr + 10;
-          __this->delegateFired++;
-        }
+    // [this](int* ctr)->void{*ctr += 10; delegateFired++; };
+    class __lambda_145_14 {
+     public:
+      inline /*constexpr */ void operator()(int* ctr) const {
+        *ctr = *ctr + 10;
+        __this->delegateFired++;
+      }
 
-       private:
-        TestFixture* __this;
+     private:
+      TestFixture* __this;
 
-       public:
-        __lambda_145_14(TestFixture* _this) : __this{_this} {}
-      };
-
-      Delegate<void(int*)> a(__lambda_145_14{this});
-      a(&(this->count));
-    }
+     public:
+      __lambda_145_14(TestFixture* _this) : __this{_this} {}
+    };
+    Delegate<void(int*)> member_delegate;
+    inline TestFixture()
+        : delegateFired{0}, count{0}, member_delegate(__lambda_145_14{this}) {}
   };
+  TestFixture fixture;
+  fixture.member_delegate(&(fixture.count));
+  TEST_PROBE(P1000, EXPECT_EQ(fixture.count, 10));
+  TEST_PROBE(P1010, EXPECT_EQ(fixture.delegateFired, 1));
+}
+/**
+ * @test EdUnitGTest_UT5SubscriptionIdsFromDelegate_Test
+ *
+ * @brief Test for unique generated subscription ids
+ */
+TVOID TEST_UT5(EDUnitGTest, SubscriptionIdsFromDelegate) {
+  using CounterDelegate = Delegate<void(int*)>;
+  CounterDelegate dbtf(basicTestFunction);
+  CounterDelegate dbdfn(BasicDelegateFunctionNoexcept);
+  CounterDelegate dh(h);
+  TEST_PROBE(P1000,
+             EXPECT_NE(dbtf.get_Subscriber_ID(), dbdfn.get_Subscriber_ID()));
+  TEST_PROBE(P1010,
+             EXPECT_NE(dbtf.get_Subscriber_ID(), dh.get_Subscriber_ID()));
+  TEST_PROBE(P1020,
+             EXPECT_NE(dbdfn.get_Subscriber_ID(), dh.get_Subscriber_ID()));
 }
