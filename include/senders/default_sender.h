@@ -1,6 +1,6 @@
 #ifndef EVENTDELEGATECPP_DEFAULT_SENDER_HPP
 #define EVENTDELEGATECPP_DEFAULT_SENDER_HPP
-#include "../util/ed.h"
+#include "../ed_base.h"
 namespace EDCPP {
 struct Info {
 

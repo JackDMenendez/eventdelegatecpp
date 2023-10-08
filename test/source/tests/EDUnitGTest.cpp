@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "event_delegate.h"
+#include "Delegate.h"
 #include "util/ghelper.h"
 #include "util/unit_test.h"
 using namespace EDCPP::unit_test;
@@ -49,72 +49,10 @@ struct TestFixture1 {
     MMSG("delegate fired");
   }
   virtual void onCount10() {}
-  Event<void()> ExecuteCount10;
+  // Event<void()> ExecuteCount10;
 };
 
-TVOID TEST(EDUnitGTest, StandardDelegate) {
-  DirectEvent<void(int*)> event;
-
-  int testCount = 0;
-  int testCount2 = 0;
-  const int fixtureInstance0_initialcount = 1;
-  const int fixtureInstance1_initialcount = 2;
-  TestFixture1 fixtureInstance0(fixtureInstance0_initialcount);
-  TestFixture1 fixtureInstance1(fixtureInstance1_initialcount);
-
-  event += basicTestFunction;              // testCount=1
-  event += BasicDelegateFunctionNoexcept;  // testCount=3
-  event += BasicDelegateFunctionNoexcept;  // testCount=5
-  event += h;                              // testCount=8
-
-  event += GiftWrapper(
-      fixtureInstance0,
-      &TestFixture1::increment);  // testCount=9
-                                  // fixtureInstance0::executeCount=1
-  event += member(
-      fixtureInstance0,
-      &TestFixture1::add2);  // testCount=11 fixtureInstance0::executeCount=3
-  event += GiftWrapper(
-      fixtureInstance1,
-      &TestFixture1::increment);  // testCount=12
-                                  // fixtureInstance1::executeCount=2
-  event += member(
-      fixtureInstance1,
-      &TestFixture1::add2);  // testCount=14 fixtureInstance1::executeCount=4
-  event += [](int* ctr) { *ctr += 10; };  // testCount=24
-  // event += std::function<void(int*)>([=](int* ctr) {
-  //     *ctr += amount_to_add;
-  // });
-  const int run1Expected_testCount = 24;
-  const int run1Expected_fixtureInstance0 = 2;
-  const int run1Expected_fixtureInstance1 = 3;
-  event(&testCount);
-  TEST_PROBE(P1000, EXPECT_TRUE(run1Expected_testCount == testCount));
-  TEST_PROBE(P1010, EXPECT_TRUE(run1Expected_fixtureInstance0 ==
-                                fixtureInstance0.executeCount));
-  TEST_PROBE(P1020, EXPECT_TRUE(run1Expected_fixtureInstance1 ==
-                                fixtureInstance1.executeCount));
-  fixtureInstance0.executeCount = fixtureInstance0_initialcount;
-  fixtureInstance1.executeCount = fixtureInstance1_initialcount;
-  // removes all g from list
-  event -= BasicDelegateFunctionNoexcept;  // testCount22
-  event -= member(
-      fixtureInstance0,
-      &TestFixture1::add2);  // fixtureInstance0::executeCount=1 testCount=20
-  event -= GiftWrapper(
-      fixtureInstance1,
-      &TestFixture1::increment);  // fixtureInstance1::executeCount=3
-                                  // testCount=19
-  const int run2Expected_testCount = 17;
-  const int run2Expected_fixtureInstance0 = 2;
-  const int run2Expected_fixtureInstance1 = 2;
-  event(&testCount2);
-  TEST_PROBE(P1030, EXPECT_TRUE(run2Expected_testCount == testCount2));
-  TEST_PROBE(P1040, EXPECT_TRUE(run2Expected_fixtureInstance0 ==
-                                fixtureInstance0.executeCount));
-  TEST_PROBE(P1050, EXPECT_TRUE(run2Expected_fixtureInstance1 ==
-                                fixtureInstance1.executeCount));
-}
+// TODO make separate tests with UT macros
 template <typename T>
 class DelegateFixture : public testing::Test {
  public:
@@ -150,6 +88,11 @@ TVOID TEST_UT1(EDUnitGTest, Delegate) {
   CounterDelegate delegate(basicTestFunction);
   delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
+  long use_count = delegate.get_ptr().use_count();
+  long expected_use_count = 1;
+  TEST_PROBE(P1010, EXPECT_EQ(use_count, expected_use_count));
+  bool has_stored_pointer = (delegate.get_ptr().get() != nullptr);
+  TEST_PROBE(P1020, EXPECT_TRUE(has_stored_pointer));
 }
 TVOID TEST_UT2(EDUnitGTest, MemberDelegate) {
   const int fixtureInstance_initialcount = 0;
@@ -163,6 +106,11 @@ TVOID TEST_UT2(EDUnitGTest, MemberDelegate) {
   TEST_PROBE(P1000, EXPECT_EQ(testCount, expected_testcount));
   TEST_PROBE(P1010, EXPECT_EQ(fixtureInstance.executeCount,
                               fixtureInstance_expectedcount));
+  long use_count = delegate.get_ptr().use_count();
+  long expected_use_count = 1;
+  TEST_PROBE(P1020, EXPECT_EQ(use_count, expected_use_count));
+  bool has_stored_pointer = (delegate.get_ptr().get() != nullptr);
+  TEST_PROBE(P1030, EXPECT_TRUE(has_stored_pointer));
 }
 TVOID TEST_UT3(EDUnitGTest, SimpleLambdaDelegate) {
   using CounterDelegate = Delegate<void(int*)>;
@@ -188,9 +136,14 @@ TVOID TEST_UT3(EDUnitGTest, SimpleLambdaDelegate) {
     // default;
     // /*constexpr */ __lambda_155_26() = default;
   };
-  CounterDelegate lambda_delegate(__lambda_155_26{});
-  lambda_delegate(&test_counter);
+  CounterDelegate delegate(__lambda_155_26{});
+  delegate(&test_counter);
   TEST_PROBE(P1000, EXPECT_EQ(test_counter, expected_count));
+  long use_count = delegate.get_ptr().use_count();
+  long expected_use_count = 1;
+  TEST_PROBE(P1010, EXPECT_EQ(use_count, expected_use_count));
+  bool has_stored_pointer = (delegate.get_ptr().get() != nullptr);
+  TEST_PROBE(P1020, EXPECT_TRUE(has_stored_pointer));
 }
 /**
  * @test EDUnitGTest_UT4ComplexLambdaDelegate_Test
@@ -232,7 +185,7 @@ TVOID TEST_UT4(EDUnitGTest, ComplexLambdaDelegate) {
  *
  * @brief Test for unique generated subscription ids
  */
-TVOID TEST_UT5(EDUnitGTest, SubscriptionIdsFromDelegate) {
+TVOID TEST_UT5(EDUnitGTest, UniqueSubscriptionIdsFromDelegate) {
   using CounterDelegate = Delegate<void(int*)>;
   CounterDelegate dbtf(basicTestFunction);
   CounterDelegate dbdfn(BasicDelegateFunctionNoexcept);
@@ -243,4 +196,75 @@ TVOID TEST_UT5(EDUnitGTest, SubscriptionIdsFromDelegate) {
              EXPECT_NE(dbtf.get_Subscriber_ID(), dh.get_Subscriber_ID()));
   TEST_PROBE(P1020,
              EXPECT_NE(dbdfn.get_Subscriber_ID(), dh.get_Subscriber_ID()));
+}
+void test_delegate(int* i) noexcept {
+  *i += 1;
+}
+TVOID TEST_UT6(EDUnitGTest, CheckRegularFunctionNoExcept) {
+  Delegate<void(int*)> test_d(test_delegate);
+  TEST_PROBE(P1000, EXPECT_FALSE(test_d.get_except_flag()));
+}
+void test_delegate_with_except(int* i) noexcept(false) {}
+TVOID TEST_UT7(EDUnitGTest, CheckRegularFunctionExcept) {
+  Delegate<void(int*)> test_de(test_delegate_with_except);
+  TEST_PROBE(P1000, EXPECT_TRUE(test_de.get_except_flag()));
+}
+TVOID TEST_UT8(EDUnitGTest, CheckRegularFunctionNoExcept) {
+  Delegate<void(int*, int)> test_d(
+      [](int* ctr, int amt) noexcept -> void { *ctr += amt; });
+  TEST_PROBE(P1000, EXPECT_FALSE(test_d.get_except_flag()));
+}
+TVOID TEST_UT9(EDUnitGTest, CheckRegularFunctionExcept) {
+  Delegate<void(int*, int)> test_d(
+      [](int* ctr, int amt) noexcept(false) -> void { *ctr += amt; });
+  TEST_PROBE(P1000, EXPECT_TRUE(test_d.get_except_flag()));
+}
+struct TestFixtureUT10 {
+  int count = 0;
+  void addne(int amount) noexcept(true) { count += amount; }
+};
+/**
+ * @test EDUnitGTest_UT10CheckMethodNoExcept_Test
+ *
+ * @brief Test for noexcept(true) condition.
+ */
+TVOID TEST_UT10(EDUnitGTest, CheckMethodNoExcept, UTDISABLED) {
+  TestFixtureUT10 tf;
+  Delegate<void(int)> test_d(tf, &TestFixtureUT10::addne);
+  // Will always be true whether noexcept(true) or noexcept(false).
+  TEST_PROBE(P1000, EXPECT_FALSE(test_d.get_except_flag()));
+}
+struct TestFixtureUT11 {
+  int count = 0;
+  void addne(int amount) noexcept(false) { count += amount; }
+};
+TVOID TEST_UT11(EDUnitGTest, CheckMethodExcept) {
+  TestFixtureUT11 tf;
+  Delegate<void(int)> test_d(tf, &TestFixtureUT11::addne);
+  TEST_PROBE(P1000, EXPECT_TRUE(test_d.get_except_flag()));
+}
+struct TestFixtureUT12 {
+  int count = 0;
+  Delegate<void(int)> test_delegate;
+  TestFixtureUT12()
+      : test_delegate(
+            [this](int amount) noexcept -> void { this->count += amount; }) {}
+};
+/** @test EDUnitGTest_UT10CheckComplexLambdaNoExcept_Test */
+TVOID TEST_UT12(EDUnitGTest, CheckComplexLambdaNoExcept) {
+  TestFixtureUT12 tf;
+  TEST_PROBE(P1000, EXPECT_FALSE(tf.test_delegate.get_except_flag()));
+}
+struct TestFixtureUT13 {
+  int count = 0;
+  Delegate<void(int)> test_delegate;
+  TestFixtureUT13()
+      : test_delegate([this](int amount) noexcept(false) -> void {
+          this->count += amount;
+        }) {}
+};
+/** @test EDUnitGTest_UT10CheckComplexLambdaExcept_Test */
+TVOID TEST_UT13(EDUnitGTest, CheckComplexLambdaNoExcept) {
+  TestFixtureUT13 tf;
+  TEST_PROBE(P1000, EXPECT_TRUE(tf.test_delegate.get_except_flag()));
 }

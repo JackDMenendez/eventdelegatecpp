@@ -7,6 +7,7 @@
  * documentation software.
  */
 #define TVOID
+#define MTESTREGIME 1
 #define MTESTID
 #define MTESTCASENAME
 #ifndef MSTRINGIFY
@@ -34,6 +35,7 @@ a lot of debugging time by emitting more information.
 #define TEST_OUTPUT() std::cout
 #define MINFO std::cout
 #endif
+#define UTDISABLED DISABLED_
 // Use these to create TEST_P so tha Doxygen does not get confused
 #define PARAMETERIZED_TEST_PUT1(FIXTURE) TEST_P(FIXTURE, PUT1)
 #define PARAMETERIZED_TEST_PUT2(FIXTURE) TEST_P(FIXTURE, PUT2)
@@ -73,16 +75,46 @@ auto probe(const std::string id, const T lhs, const D rhs, probeoperator prbop)
   probe(MTOSTRING(PID), PLHS, PRHS, probeoperator::equal)
 #define MISNOTEQUAL(PID, PLHS, PRHS) \
   probe(MTOSTRING(PID), PLHS, PRHS, probeoperator::not_equal)
-#define TEST_UT1(testid, test_case_name) TEST(testid, UT1##test_case_name)
-#define TEST_UT2(testid, test_case_name) TEST(testid, UT2##test_case_name)
-#define TEST_UT3(testid, test_case_name) TEST(testid, UT3##test_case_name)
-#define TEST_UT4(testid, test_case_name) TEST(testid, UT4##test_case_name)
-#define TEST_UT5(testid, test_case_name) TEST(testid, UT5##test_case_name)
-#define TEST_UT6(testid, test_case_name) TEST(testid, UT6##test_case_name)
-#define TEST_UT7(testid, test_case_name) TEST(testid, UT7##test_case_name)
-#define TEST_UT8(testid, test_case_name) TEST(testid, UT8##test_case_name)
-#define TEST_UT9(testid, test_case_name) TEST(testid, UT9##test_case_name)
-#define TEST_UT10(testid, test_case_name) TEST(testid, UT10##test_case_name)
+#define TEST_UT1(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT1##test_case_name))
+#define TEST_UT2(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT2##test_case_name))
+#define TEST_UT3(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT3##test_case_name))
+#define TEST_UT4(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT4##test_case_name))
+#define TEST_UT5(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT5##test_case_name))
+#define TEST_UT6(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT6##test_case_name))
+#define TEST_UT7(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT7##test_case_name))
+#define TEST_UT8(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT8##test_case_name))
+#define TEST_UT9(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT9##test_case_name))
+#define TEST_UT10(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT10##test_case_name))
+#define TEST_UT11(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT11##test_case_name))
+#define TEST_UT12(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT12##test_case_name))
+#define TEST_UT13(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT13##test_case_name))
+#define TEST_UT14(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT14##test_case_name))
+#define TEST_UT15(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT15##test_case_name))
+#define TEST_UT16(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT16##test_case_name))
+#define TEST_UT17(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT17##test_case_name))
+#define TEST_UT18(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT18##test_case_name))
+#define TEST_UT19(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT19##test_case_name))
+#define TEST_UT20(testid, test_case_name, ...) \
+  TEST(testid, MCONCAT(__VA_ARGS__, UT20##test_case_name))
 
 #define NTEST_T1(test_case_name, test_name, ...) \
   NAMESPACED_TEST(test_case_name, MCONCAT(T1_, test_name), __VA_ARGS__)

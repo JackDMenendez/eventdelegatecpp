@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string>
 #include "ed_defs.h"
-#include "forward.h"
+#include "forward_decl.h"
 // Provide the root namespace.
 #define EDCPP eventdelegatecpp
 #ifndef STRINGIFY

@@ -31,21 +31,21 @@ enable_testing()
 
 set(eventdelegatecpp_sources
         "source/default_sender.cpp"
- "source/event_delegate.cpp") 
+ "source/event_delegate.cpp" "source/delegate.cpp") 
 
 set(eventdelegatecpp_headers
         "include/event_delegate.h"
         "include/senders/default_sender.h" 
         "include/util/ed.h" 
         "include/util/ed_defs.h" 
-        "include/util/forward.h"
-)
+        "include/util/forward_decl.h"
+ "include/first_try.h" "include/event_concepts.h" "include/ICallBackWrapper.h" "include/CallBackWrapper.h" "include/IntermediateMemberWrapper.h" "include/MethodWrapper.h" "include/Delegate.h" "include/IDelegateSharedWrapper.h" "include/Event.h")
 
 # ---- Test Exec ----
 
 set(eventdelegatecpp_test_source
-        "test/source/tests/SubscriptionTest.cpp"
- "test/include/util/ghelper.h")
+        "test/source/tests/EDUnitGTest.cpp"
+ "test/include/util/ghelper.h" "test/source/tests/EDOUnitGTest.cpp")
 
 set(eventdeletatecpp_test_headers
         "test/include/util/unit_test.h"

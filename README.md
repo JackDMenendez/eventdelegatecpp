@@ -25,3 +25,8 @@ In other words, do as much at compile time. We want to make firing an event and 
 as fast and efficient as possible including respecting noexcept when it is specified on delegates.
 
 A future goal is supporting C++ coroutines and C++ concurrency.
+
+## What is a Delegate?
+
+A delegate can be any function, method, or invocable object that returns void. The Delegate can be
+invoked directly or through and event subscription.
