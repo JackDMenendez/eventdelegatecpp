@@ -13,7 +13,9 @@ struct ICall;
 
 template <typename... Args>
 struct ICall<void(Args...)> {
-  virtual ~ICall() noexcept { std::cout << "~ICall()\n"; }
+  virtual ~ICall() noexcept { 
+          //std::cout << "~ICall()\n"; 
+  }
   virtual auto do_cmp(ICall* other) noexcept -> bool = 0;
   virtual void do_call(Args... args) noexcept = 0;
 };  // namespace EDCPP
@@ -36,7 +38,9 @@ struct Call<T, void(Args...)> : ICall<void(Args...)> {
   void do_call(Args... args) noexcept {
     return this->d_callback(std::forward<Args>(args)...);
   }
-  virtual ~Call() noexcept { std::cout << "~Call()\n"; }
+  virtual ~Call() noexcept {
+    //        std::cout << "~Call()\n";
+  }
 };
 template <typename RC, typename Class, typename... Args>
 class member_call {
@@ -74,7 +78,9 @@ class member_call {
   auto operator!=(member_call const& other) const noexcept -> bool {
     return !(*this == other);
   }
-  ~member_call() noexcept { std::cout << "~member_call()\n"; }
+  ~member_call() noexcept {
+    //        std::cout << "~member_call()\n";
+  }
 };
 template <typename RC, typename Class, typename... Args>
 auto member(Class& object, RC (Class::*member)(Args...))
@@ -123,8 +129,6 @@ struct DirectEvent<void(Args...)> {
   }
 };
 
-
-}
-
+}  // namespace ED
 
 #endif

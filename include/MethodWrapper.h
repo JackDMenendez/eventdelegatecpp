@@ -1,27 +1,51 @@
 #ifndef METHODWRAPPER_H
 #define METHODWRAPPER_H
-#include "ed_base.h"
 #include "IntermediateMemberWrapper.h"
-namespace EDCPP {
+#include "ed_base.h"
+EDCPP_BEGIN
 template <typename RC, typename Class, typename... Args>
 auto MethodWrapper(Class& object, RC (Class::*method)(Args...)) noexcept
-    -> IntermediateMemberWrapper<decltype(method), RC, Class, Args...> {
-  return IntermediateMemberWrapper<decltype(method), RC, Class, Args...>(
-      &object, method);
+    -> IntermediateMemberWrapperExNoCoNoVo<decltype(method),
+                                           RC,
+                                           Class,
+                                           Args...> {
+  static_assert(std::is_member_function_pointer<decltype(method)>::value,
+                "Must be non-static member function.");
+  return IntermediateMemberWrapperExNoCoNoVo<decltype(method), RC, Class,
+                                             Args...>(&object, method);
+}
+template <typename RC, typename Class, typename... Args>
+auto MethodWrapper(Class& object,
+                   RC (Class::*method)(Args...) noexcept) noexcept
+    -> IntermediateMemberWrapperNoExNoCoNoVo<decltype(method),
+                                             RC,
+                                             Class,
+                                             Args...> {
+  static_assert(std::is_member_function_pointer<decltype(method)>::value,
+                "Must be non-static member function.");
+  return IntermediateMemberWrapperNoExNoCoNoVo<decltype(method), RC, Class,
+                                               Args...>(&object, method);
 }
 template <typename RC, typename Class, typename... Args>
 auto MethodWrapper(const Class& object,
                    RC (Class::*method)(Args...) const) noexcept
-    -> IntermediateMemberWrapper<decltype(method), RC, Class, Args...> {
-  return IntermediateMemberWrapper<decltype(method), RC, Class, Args...>(
-      &object, method);
+    -> IntermediateMemberWrapperExCoNoVo<decltype(method), RC, Class, Args...> {
+  static_assert(std::is_member_function_pointer<decltype(method)>::value,
+                "Must be non-static member function.");
+  return IntermediateMemberWrapperExCoNoVo<decltype(method), RC, Class,
+                                           Args...>(&object, method);
 }
 template <typename RC, typename Class, typename... Args>
 auto MethodWrapper(const Class& object,
-                   RC (Class::*method)(Args...) volatile) noexcept
-    -> IntermediateMemberWrapper<decltype(method), RC, Class, Args...> {
-  return IntermediateMemberWrapper<decltype(method), RC, Class, Args...>(
-      &object, method);
+                   RC (Class::*method)(Args...) const noexcept) noexcept
+    -> IntermediateMemberWrapperNoExCoNoVo<decltype(method),
+                                           RC,
+                                           Class,
+                                           Args...> {
+  static_assert(std::is_member_function_pointer<decltype(method)>::value,
+                "Must be non-static member function.");
+  return IntermediateMemberWrapperNoExCoNoVo<decltype(method), RC, Class,
+                                             Args...>(&object, method);
 }
-}  // namespace EDCPP
+EDCPP_END
 #endif

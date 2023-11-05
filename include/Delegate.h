@@ -1,25 +1,25 @@
 #ifndef DELEGATE_H
 #define DELEGATE_H
-#include <exception>
-#include <type_traits>
 #include <atomic>
-#include <memory>
-#include <utility>
+#include <exception>
 #include <iostream>
-#include "ed_base.h"
-#include "event_concepts.h"
-#include "ICallBackWrapper.h"
+#include <memory>
+#include <type_traits>
+#include <utility>
 #include "CallBackWrapper.h"
+#include "ICallBackWrapper.h"
+#include "IDelegateSharedWrapper.h"
 #include "IntermediateMemberWrapper.h"
 #include "MethodWrapper.h"
-#include "IDelegateSharedWrapper.h"
+#include "ed_base.h"
+#include "event_concepts.h"
 #include "senders/default_sender.h"
-namespace EDCPP {
+EDCPP_BEGIN
 static std::atomic_uint64_t ID_Generator = 0;
 template <typename Signature>
-class Delegate;
+EDCPP_EXPORT class Delegate;
 template <typename RC, typename... Args>
-class Delegate<RC(Args...)> {
+EDCPP_EXPORT class Delegate<RC(Args...)> {
   static_assert(!std::is_same<RC, void>::value,
                 "Delegate function must return void");
 };
@@ -102,7 +102,9 @@ class Delegate<void(Args...)> : IDelegateSharedWrapper<Args...> {
     }
     call_back->do_call_noexcept(args...);
   }
-  ~Delegate() noexcept { std::cout << "~Delegate()\n"; }
+  ~Delegate() noexcept {
+    //        std::cout << "~Delegate()\n";
+  }
 };
-}
+EDCPP_END
 #endif

@@ -39,13 +39,13 @@ set(eventdelegatecpp_headers
         "include/util/ed.h" 
         "include/util/ed_defs.h" 
         "include/util/forward_decl.h"
- "include/first_try.h" "include/event_concepts.h" "include/ICallBackWrapper.h" "include/CallBackWrapper.h" "include/IntermediateMemberWrapper.h" "include/MethodWrapper.h" "include/Delegate.h" "include/IDelegateSharedWrapper.h" "include/Event.h")
+ "include/first_try.h" "include/event_concepts.h" "include/ICallBackWrapper.h" "include/CallBackWrapper.h" "include/IntermediateMemberWrapper.h" "include/MethodWrapper.h" "include/Delegate.h" "include/IDelegateSharedWrapper.h" "include/Event.h" "include/util/environment.h" "include/util/compiler.h" "include/util/messages.h")
 
 # ---- Test Exec ----
 
 set(eventdelegatecpp_test_source
-        "test/source/tests/EDUnitGTest.cpp"
- "test/include/util/ghelper.h" "test/source/tests/EDOUnitGTest.cpp")
+        "test/source/tests/DelegateUnitGTest.cpp" "test/source/tests/ConceptsUnitGTest.cpp"
+ "test/include/util/ghelper.h" "test/source/tests/WildWestUnitGTest.cpp" "test/source/tests/IntermediateMemberWrapperGTest.cpp" "test/include/test_functions.h" "test/source/util/test_functions.cpp")
 
 set(eventdeletatecpp_test_headers
         "test/include/util/unit_test.h"
@@ -101,6 +101,7 @@ add_executable(EDUnitGTest
      ${eventdelegatecpp_test_source} 
      ${eventdelegatecpp_test_headers} 
      ${eventdelegatecpp_headers}
+     ${eventdelegatecpp_sources}
 )
 target_include_directories(EDUnitGTest ${eventdelegatecpp_warning_guard}
         PUBLIC

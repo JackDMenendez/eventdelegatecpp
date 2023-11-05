@@ -1,10 +1,9 @@
 
 #include <gtest/gtest.h>
+#define MTESTREGIME 1
 #include "first_try.h"
 #include "gtest/gtest-spi.h"
 #include "util/ghelper.h"
-#include "util/unit_test.h"
-using namespace EDCPP::unit_test;
 using namespace ED;
 void basicTestFunctionWW(int* ctr) {
   *ctr += 1;
@@ -57,7 +56,7 @@ struct TestFixtureWW {
   DirectEvent<void()> ExecuteCount10;
   virtual ~TestFixtureWW() { dead = true; }
 };
-TVOID TEST_UT1(EDOUnitGTest, StandardDelegate) {
+TVOID TEST_UT01(WildWestUnitGTest, StandardDelegate) {
   DirectEvent<void(int*)> event;
 
   int testCount = 0;
@@ -145,7 +144,7 @@ void UseTheEventAgain(DirectEvent<void(int*)>& event, int* testCount) {
     }
   }
 }
-TVOID TEST_UT2(EDOUnitGTest, StandardDelegateError, UTDISABLED) {
+TVOID TEST_UT02(WildWestUnitGTest, StandardDelegateError, UTDISABLED) {
   const int fixtureInstance0_initialcount = 1;
   int testCount = 0;
   DirectEvent<void(int*)> event;

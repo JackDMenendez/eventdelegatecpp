@@ -1,0 +1,13 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define EDCPP_COMBINE(N)
+#define EDCPP_USING
+#define EDCPP_BEGIN namespace MEDCPP {
+#define EDCPP_END }
+#define EDCPP_EXPORT
+#define EDCPP_UNIT_TEST_BEGIN namespace EDCPP_COMBINE(unit_test) {
+#define EDCPP_UNIT_TEST_END }
+#define USING_EDCPP_UNIT_TEST
+#define START_EDCPP_TEST_TYPE_COLLECTION testing::Types<
+#define END_EDCPP_TEST_TYPE_COLLECTION >

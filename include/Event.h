@@ -6,7 +6,7 @@
 #include "CallBackWrapper.h"
 #include "ICallBackWrapper.h"
 #include "ed_base.h"
-namespace EDCPP {
+EDCPP_BEGIN
 template <typename Signature>
 struct Event;
 
@@ -43,5 +43,5 @@ struct Event<void(Args...)> {
     }
   }
 };
-}  // namespace EDCPP
+EDCPP_END
 #endif
