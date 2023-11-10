@@ -2,12 +2,16 @@
 #define EVENT_CONCEPTS_H
 #include <type_traits>
 #include "ed_base.h"
+#include "ed_traits.h"
 
 EDCPP_BEGIN
 template <typename T>
-concept RCVOID = _STD is_same<T, void>::value;
+concept RCVoid = _STD is_same<T, void>::value;
 template <typename T> 
-concept RCNOTVOID = ! _STD is_same<T, void>::value;
+concept RCNotVoid = ! _STD is_same<T, void>::value;
+
+template <class I>
+concept DefaultDelegateFunction = is_default_delegate_v<I>;
 /**
  * @brief Used to identify functions that are not lambdas and not member
  * functions.

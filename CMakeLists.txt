@@ -39,7 +39,7 @@ set(eventdelegatecpp_headers
         "include/util/ed.h" 
         "include/util/ed_defs.h" 
         "include/util/forward_decl.h"
- "include/first_try.h" "include/event_concepts.h" "include/ICallBackWrapper.h" "include/CallBackWrapper.h" "include/IntermediateMemberWrapper.h" "include/MethodWrapper.h" "include/Delegate.h" "include/IDelegateSharedWrapper.h" "include/Event.h" "include/util/environment.h" "include/util/compiler.h" "include/util/messages.h")
+ "include/first_try.h" "include/event_concepts.h" "include/ICallBackWrapper.h" "include/CallBackWrapper.h" "include/IntermediateMemberWrapper.h" "include/MethodWrapper.h" "include/Delegate.h" "include/IDelegateSharedWrapper.h" "include/Event.h" "include/util/environment.h" "include/util/compiler.h" "include/util/messages.h" "include/ed_traits.h")
 
 # ---- Test Exec ----
 

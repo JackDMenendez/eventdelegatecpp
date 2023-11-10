@@ -18,7 +18,7 @@ struct ICall<void(Args...)> {
   }
   virtual auto do_cmp(ICall* other) noexcept -> bool = 0;
   virtual void do_call(Args... args) noexcept = 0;
-};  // namespace EDCPP
+};  // namespace _EDCPP
 
 template <typename T, typename Signature>
 struct Call;

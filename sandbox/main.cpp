@@ -1,7 +1,7 @@
 #include <cassert>
 #include "event_delegate.h"
 using namespace std;
-using namespace EDCPP;
+using namespace _EDCPP;
 void f(int* ctr) {
   *ctr += 1;
 }

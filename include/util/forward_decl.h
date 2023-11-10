@@ -1,7 +1,7 @@
 #ifndef EVENTDELEGATECPP_FORWARD_HPP
 #define EVENTDELEGATECPP_FORWARD_HPP
-namespace EDCPP {
+namespace _EDCPP {
 struct Info;
 struct Sender;
-}  // namespace EDCPP
+}  // namespace _EDCPP
 #endif

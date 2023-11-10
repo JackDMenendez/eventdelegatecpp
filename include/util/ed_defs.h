@@ -33,12 +33,12 @@
 #define EDCPP_EXPORT
 #endif  // EDCPP_CXX23 && defined(_BUILD_STD_MODULE)
 #include "messages.h"
-#define MEDCPP eventdelegatecpp
-#define EDCPP ::MEDCPP::
-#define EDCPP_BEGIN namespace MEDCPP {
+#define _MEDCPP eventdelegatecpp
+#define _EDCPP ::_MEDCPP::
+#define EDCPP_BEGIN namespace _MEDCPP {
 #define EDCPP_END }
-#define EDCPP_COMBINE(N) MEDCPP::N
-#define EDCPP_USING using namespace MEDCPP;
+#define EDCPP_COMBINE(N) _MEDCPP::N
+#define EDCPP_USING using namespace _MEDCPP;
 #if _WIN32 || _WIN64
 #if _WIN64
 #define ENVIRONMENT64
@@ -57,7 +57,7 @@
 #ifdef EDCPP_MSVC_COMPILER
 #ifdef ENVIRONMENT64
 #define EDCPP_CALL __vectorcall
-//#define EDCPP_CALL __cdecl
+// #define EDCPP_CALL __cdecl
 #else
 #define EDCPP_CALL __cdecl
 #endif

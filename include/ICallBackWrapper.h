@@ -22,6 +22,6 @@ struct ICallBackWrapper<void(Args...)> {
   virtual void set_subscriber_id(uint64_t id) noexcept = 0;
   virtual bool throws_exception() const noexcept = 0;
   virtual void set_throws_exception(bool throws_exception_flag) noexcept = 0;
-};  // namespace EDCPP
+};  // namespace _EDCPP
 EDCPP_END
 #endif
