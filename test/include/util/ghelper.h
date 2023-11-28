@@ -47,14 +47,23 @@ a lot of debugging time by emitting more information.
 */
 #define TEST_INFO() TEST_OUTPUT() << "[     INFO ] "
 #define TEST_TRACE() TEST_OUTPUT() << "[     TRCE ] "
+#define TEST_PRBMSG() TEST_OUTPUT() << "[    PROBE ] "
 #define MMSG(MI) MINFO << "[     " << MTOSTRING(MI) << " ] "
 #define PRINT_FUNCTION_TYPE(mF)     \
   TEST_INFO() << "Function Type: "; \
   ArgPrinter<mF>::print();          \
   MINFO << TEST_EOL
-#define TEST_PROBE(PID, PASSERTION)                                   \
+#define TEST_PROBE(PID, PASSERTION)         \
   MMSG(INFO) << MTOSTRING(PID) << TEST_EOL; \
   PASSERTION
+#define TEST_PROBEW(PID, PASSERTION, ...)                        \
+  MMSG(INFO) << MTOSTRING(PID) << " - " __VA_ARGS__ << TEST_EOL; \
+  PASSERTION
+#define MTEST_EQ(EXPECTED, ACTUAL)              \
+  EXPECT_EQ(EXPECTED, ACTUAL)                   \
+      << MTOSTRING(EXPECTED) << "(" << EXPECTED \
+      << ") == " << MTOSTRING(ACTUAL) << "(" << ACTUAL << ")"
+
 enum probeoperator { equal, not_equal };
 template <typename T, typename D>
 auto probe(const std::string id, const T lhs, const D rhs, probeoperator prbop)
@@ -159,46 +168,7 @@ struct type_container {
 #define TEST_UT20(testid, test_case_name, ...) \
   TEST(testid, MCONCAT(__VA_ARGS__, UT20##test_case_name))
 
-#define TYPED_TEST_TT01(testid, test_case_name) \
-  TYPED_TEST(testid, TT01##test_case_name)
-#define TYPED_TEST_TT02(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT02##test_case_name)
-#define TYPED_TEST_TT03(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT03##test_case_name)
-#define TYPED_TEST_TT04(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT04##test_case_name)
-#define TYPED_TEST_TT05(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT05##test_case_name)
-#define TYPED_TEST_TT06(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT06##test_case_name)
-#define TYPED_TEST_TT07(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT07##test_case_name)
-#define TYPED_TEST_TT08(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT08##test_case_name)
-#define TYPED_TEST_TT09(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT09##test_case_name)
-#define TYPED_TEST_TT10(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT10##test_case_name)
-#define TYPED_TEST_TT11(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT11##test_case_name)
-#define TYPED_TEST_TT12(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT12##test_case_name)
-#define TYPED_TEST_TT13(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT13##test_case_name)
-#define TYPED_TEST_TT14(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT14##test_case_name)
-#define TYPED_TEST_TT15(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT15##test_case_name)
-#define TYPED_TEST_TT16(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT16##test_case_name)
-#define TYPED_TEST_TT17(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT17##test_case_name)
-#define TYPED_TEST_TT18(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT18##test_case_name)
-#define TYPED_TEST_TT19(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT19##test_case_name)
-#define TYPED_TEST_TT20(testid, test_case_name, ...) \
-  TYPED_TEST(testid, TT20##test_case_name)
+#define TYPED_TEST_TT01(testid) TYPED_TEST(testid, TT01)
 #define NTEST_T1(test_case_name, test_name, ...) \
   NAMESPACED_TEST(test_case_name, MCONCAT(T1_, test_name), __VA_ARGS__)
 #define NTEST_T2(test_case_name, test_name, ...) \

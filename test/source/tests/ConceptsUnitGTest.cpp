@@ -1,125 +1,247 @@
+/*
+   EventDelegateCPP is a code library that provide event delegate functionality
+   to C++
+
+    Copyright (C) 2023  Jack D. Menendez
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/// @file ConceptsUnitGTest.cpp
+///
+/// @brief Contains traits and concepts unit tests.
+///
+/// @ingroup EventDelegatCPP
+///
+/// @details
+/// This is a Google Test file.The following is a list of the unit tests in this
+/// file.
+///
+///      Test ID     | Test Description
+/// ---------------- | ----------------
+/// @ref A_TT01 TT01 | validate the func_yield_traits with function pointers.
+///
+/// @copyright 2023,2024 Jack D Menendez
+/// @author Jack D. Menendez
+/// @date date_here Created
+/// @since @22/11//2023 Created
+/// @version 0.0.1
 #include <gtest/gtest.h>
 #include <functional>
 #include <type_traits>
 #define MTESTREGIME 1
 #include <concepts>
+#include "TestFixtureFunctionType.h"
 #include "ed_traits.h"
 #include "event_concepts.h"
 #include "senders/default_sender.h"
 #include "test_functions.h"
 #include "util/ghelper.h"
 #include "util/unit_test.h"
-// #define TT01 1
-#define UT01 1
-// #define UT02 2
-// #define UT03 3
-// #define UT04 4
-// #define UT05 5
-// #define UT06 6
-// #define UT07 7
-// #define UT08 8
-// #define UT09 9
-// #define UT10 10
-// #define UT11 11
-// #define UT12 12
-// #define UT13 13
-// #define UT14 14
+
+// uncommenting the following lines enables the unit tests
+#define TT01 TRAITS_TT_01
 EDCPP_USING
 USING_EDCPP_UNIT_TEST
-template <class C>
-struct TestFixtureConcept1 : public testing::Test {};
-template <class RC, class... Args>
-struct TestFixtureConcept1<type_container<RC, RC(Args...) noexcept>>
-    : public testing::Test {
-  static void printTypes() {
-    TEST_INFO() << "testing noexcept void NoArgs: (";
-    ArgPrinter<Args...>::print();
-    MINFO << ")" << TEST_EOL;
-  }
-  static RC (*testFunction)(Args...) noexcept;
-  using F = decltype(testFunction);
-  using R = RC;
-  static constexpr bool is_const = _STD is_const_v<F>;
-  static constexpr bool is_except = !_STD is_nothrow_invocable_v<F>;
-  static constexpr bool is_function =
-      _STD is_function_v<_STD remove_pointer<F>::type>;
-  static constexpr bool is_function_pointer =
-      is_function && _STD is_pointer_v<F>;
-  ;
-  static constexpr bool is_functor = false;
-  static constexpr bool is_invocable = _STD is_invocable_v<F>;
-  static constexpr bool is_lambda = false;
-  static constexpr bool is_member_function_pointer =
-      _STD is_member_function_pointer_v<F>;
-  static constexpr auto numargs{sizeof...(Args)};
-  static constexpr bool is_noexcept = !is_except;
-  static constexpr bool is_return_void = _STD is_same_v<R, void>;
-  // second tier of traits
-  static constexpr bool eligible_for_simple_delegate = is_return_void;
-  static constexpr bool eligible_for_complex_delegate = true;
-  static constexpr bool eligible_for_standard_delegate =
-      false;  // todo fix this
-  static constexpr bool eligible_for_default_delegate =
-      (_EDCPP is_default_delegate_v<F>);
-};
-VOID_L_EXCEPT;
-VOID_L_NOEXCEPT;
 
-using TestFixture_void_function_void = TestFixtureConcept1<void_function_void>;
-using TestFixture_void_function_void_noexcept =
-    TestFixtureConcept1<void_function_void_noexcept>;
-
-using TestFixture_void_f_const_info_noexcept =
-    TestFixtureConcept1<decltype(void_f_const_Info_noexcept)>;
-using BasicFunctionConcept1 = ED_UnitTest_TypeCollection;
-
-TYPED_TEST_SUITE(TestFixtureConcept1, BasicFunctionConcept1);
 #ifdef TT01
 
-/// @test validate some of the strategy behind developing our traits.
-TVOID TYPED_TEST_TT01(TestFixtureConcept1, FunctionPtr) {
-  TestFixture::printTypes();
-  PRINT_FUNCTION_TYPE(TestFixture::F);
+/// @anchor A_TT01
+///
+/// @brief TYPED_TEST_TT01 RegularFunctionPtrs, validate the func_yield_traits
+///
+/// @test TYPED_TEST_TT01 RegularFunctionPtrs, validate the func_yield_traits
+/// class against a long list of regular function pointers that do not include
+/// non-static class methods and functors or lambdas.
+///
+/// @details
+/// TestFixture_FunctionType inherits from test::Test and from func_yield_traits
+/// making all of the traits used by the Delegate class. This test validates
+/// that all the traits are parsed properly.
+///
+/// The following chart shows the function types supported by this
+/// specialization of func_yield_traits.h in ed_traits. The test functions can b
+/// found in Please keep the chart up
+/// to date.
+///
+///         Function Type         | Test Function(s) test_functions.h
+/// ----------------------------- | ---------------------------------
+/// R(Args ...) noexcept const && |
+/// R() noexcept const &&         |
+/// R(Args ...) noexcept const &  |
+///
+/// The following tests are performed for each of the test functions type in the
+/// ED_UnitTest_TypeCollection. Each probe listed has its result written to the
+/// Google Test output for each type of test function in the collection.
+///
+/// Within the test body, the special name TypeParam refers to the type
+/// parameter, and TestFixture refers to the fixture class.
+/// https://google.github.io/googletest/reference/testing.html
+///
+/// TYPED_TEST_TT01 is a custom macro that gives the test body a unique name
+/// that looks like a function to Doxygen allowing it to be documented as a
+/// function.
+///
+/// TEST_PROBEW is a custom macro that writes the result of the probe to the
+/// Google Test output. Each probe is given a unique probe number such that it
+/// can be easily referenced and found in the output and code.
+///
+/// Probe | Description
+/// ----- | -----------
+/// P1000 | Test ability to parse the parameters of the function type.
+/// P1020 | Test detection of default delegate.
+/// P1030 | Test detection of standard delegate.
+/// P1040 | Test rebuilding of the function pointer type.
+/// P1050 | Test reflection of the return type.
+/// P1060 | Test reflection of the noexcept.
+///
+/// @return TVOID is a fake type that is used to fool Doxygen into documenting
+/// the test as a function.
+TVOID TYPED_TEST_TT01(TestFixture_FunctionType) {
+  TEST_TRACE() << "TYPED_TEST_TT01 RegularFunctionPtrs typed test" << TEST_EOL;
+  ////////////////////////////////////////////////////////////////////////
+  TEST_PROBEW(P1000,
+              EXPECT_EQ(TestFixture::function_param_count_v,
+                        TypeParam::expected_parameter_count),
+              << "TestFixture::function_param_count_v("
+              << TestFixture::function_param_count_v << ") == "
+              << "TypeParam::expected_param_count("
+              << TypeParam::expected_parameter_count << ")");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_PROBEW(P1020,
+              EXPECT_EQ(TestFixture::is_default_delegate_v,
+                        TypeParam::expect_default_delegate),
+              << "TestFixture::is_default_delegate_v("
+              << TestFixture::is_default_delegate_v << ") == "
+              << "TypeParam::expect_default_delegate("
+              << TypeParam::expect_default_delegate << ")");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_PROBEW(P1030,
+              EXPECT_EQ(TestFixture::is_standard_delegate_v,
+                        TypeParam::expect_standard_delegate),
+              << "TestFixture::is_standard_delegate_v("
+              << TestFixture::is_standard_delegate_v << ") == "
+              << "TypeParam::expect_standard_delegate("
+              << TypeParam::expect_standard_delegate << ")");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_TRACE() << "P1040 TypeParam::input_function_pointer_type_t("
+               << typeid(TypeParam::input_function_pointer_type_t).name() << ")"
+               << TEST_EOL;
+  TEST_TRACE() << "P1040 TestFixture::FunctionPointer_t("
+               << typeid(TestFixture::FunctionPointer_t).name() << ")"
+               << TEST_EOL;
+  auto l_expect_same_function_type =
+      _STD is_same_v<TypeParam::input_function_pointer_type_t,
+                     TestFixture::FunctionPointer_t>;
+  TEST_PROBEW(P1040, EXPECT_TRUE(l_expect_same_function_type),
+              << "FunctionPointer_t matches ");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_TRACE() << "P1050 TypeParam::input_return_type_t("
+               << typeid(TypeParam::input_return_type_t).name() << ")"
+               << TEST_EOL;
+  TEST_TRACE() << "P1050 TestFixture::ReturnCode_t("
+               << typeid(TestFixture::ReturnCode_t).name() << ")" << TEST_EOL;
+  auto l_expect_same_return_type =
+      _STD is_same_v<TypeParam::input_return_type_t, TestFixture::ReturnCode_t>;
+  TEST_PROBEW(P1050, EXPECT_TRUE(l_expect_same_return_type),
+              << "ReturnCode_t matches input_return_type_t");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_PROBEW(P1060,
+              MTEST_EQ(TestFixture::noexcept_v, TypeParam::expect_noexcept));
+  //<< "TestType::noexcept_v(" << TestFixture::noexcept_v << ") == "
+  //<< "TypeParam::expect_noexcept(" << TypeParam::expect_noexcept << ")");
+  ////////////////////////////////////////////////////////////////////////
+  TEST_PROBEW(P1070, EXPECT_EQ(TestFixture::const_v, TypeParam::expect_const),
+              << "TestType::const_v is " << TypeParam::expect_const);
 }
 #endif
 #ifdef UT01
-/// @test validate tools for trait testing of simplest function pointer void()
-/// 
-/// We are using the values in TestFixture to test the functioning of func_y
+/// @test Validate func_yield_traits against void_function_void_noexcept
 TVOID TEST_UT01(Traits, F_void_function_void_noexcept) {
-  using TestFixture = TestFixture_void_function_void_noexcept;
-  PRINT_FUNCTION_TYPE(TestFixture::F);  // Function type shows up in the output.
-                                        // This is a pointer type.
-  // Direct Trait Test
+  using input_return_type_t = typename void_function_void_noexcept::type_A;
+  using input_function_type = typename void_function_void_noexcept::type_B;
+  constexpr bool input_noexcept_t = true;
+  constexpr bool input_const = false;
+  constexpr bool input_reference = false;
+  constexpr bool input_rvalue_reference = false;
+#define input_arguments void
 
-  TEST_PROBE(P0110, EXPECT_FALSE(is_default_delegate_v<TestFixture::F>));
-  using TestType = typename func_y<TestFixture::R,  // return code
-                                   true,            // noexcept
-                                   false,           // const
-                                   false,           // reference
-                                   false,           // rvalue reference
-                                   void  // list of function Arguments
-                                   >::FP;
-  PRINT_FUNCTION_TYPE(TestType);  // very useful for debugging compare to the
-                                  // first printed function type
-  auto same_type = _STD is_same_v<TestFixture::F, TestType>;
-  TEST_PROBE(P0111, EXPECT_TRUE(same_type));
-  TEST_PROBE(P1010, EXPECT_FALSE(TestFixture::is_const));
-  TEST_PROBE(P1020, EXPECT_FALSE(TestFixture::is_except));
-  TEST_PROBE(P1030, EXPECT_TRUE(TestFixture::is_invocable));
-  TEST_PROBE(P1040, EXPECT_TRUE(TestFixture::is_function));
-  TEST_PROBE(P1050, EXPECT_TRUE(TestFixture::is_function_pointer));
-  TEST_PROBE(P1060, EXPECT_FALSE(TestFixture::is_functor));
-  TEST_PROBE(P1070, EXPECT_TRUE(TestFixture::is_invocable));
-  TEST_PROBE(P1080, EXPECT_FALSE(TestFixture::is_lambda));
-  TEST_PROBE(P1090, EXPECT_FALSE(TestFixture::is_member_function_pointer));
-  TEST_PROBE(P1100, EXPECT_EQ(0, TestFixture::numargs));
-  TEST_PROBE(P1110, EXPECT_TRUE(TestFixture::is_noexcept));
-  TEST_PROBE(P1120, EXPECT_TRUE(TestFixture::is_return_void));
-  TEST_PROBE(P1130, EXPECT_TRUE(TestFixture::eligible_for_simple_delegate));
-  TEST_PROBE(P1140, EXPECT_TRUE(TestFixture::eligible_for_complex_delegate));
-  TEST_PROBE(P1150, EXPECT_FALSE(TestFixture::eligible_for_standard_delegate));
-  TEST_PROBE(P1160, EXPECT_FALSE(TestFixture::eligible_for_default_delegate));
+  using TestType =
+      typename func_yield_traits<input_return_type_t,     // return code type
+                                 input_noexcept_t,        // exception regime
+                                 input_const,             // const definition
+                                 input_reference,         // reference
+                                 input_rvalue_reference,  // rvalue reference
+                                 input_arguments  // list of function Arguments
+                                 >;
+
+#undef input_arguments
+
+  size_t const expected_param_count = 0;
+  bool const expect_default_delegate = false;
+  bool const expect_standard_delegate = false;
+  bool const expect_noexcept = true;
+  bool const expect_const = false;
+  bool const expect_reference = false;
+  bool const expect_rvalue_reference = false;
+
+  TEST_PROBEW(
+      P1000, EXPECT_EQ(TestType::function_param_count_v, expected_param_count),
+      << "TestType::function_param_count_v == " << expected_param_count);
+
+  TEST_PROBEW(
+      P1020,
+      EXPECT_EQ(TestType::is_default_delegate_v, expect_default_delegate),
+      << "TestType::is_default_delegate_v == " << expect_default_delegate);
+
+  TEST_PROBEW(
+      P1030,
+      EXPECT_EQ(TestType::is_standard_delegate_v, expect_standard_delegate),
+      << "TestType::is_standard_delegate_v == " << expect_standard_delegate);
+
+  TEST_TRACE() << "P1040 Expected Func Type("
+               << typeid(input_function_type).name() << ")" << TEST_EOL;
+  TEST_TRACE() << "P1040 Actual Func Type("
+               << typeid(TestType::FunctionType_t).name() << ")" << TEST_EOL;
+
+  auto expect_same_function_type =
+      _STD is_same_v<input_function_type, TestType::FunctionType_t>;
+
+  TEST_PROBEW(P1040, EXPECT_TRUE(expect_same_function_type),
+              << "TestFunctionType matches input_function_type");
+
+  TEST_TRACE() << "P1050 input_return_type_t("
+               << typeid(input_return_type_t).name() << ")" << TEST_EOL;
+  TEST_TRACE() << "P1050 Actual Return Type("
+               << typeid(TestType::ReturnCode_t).name() << ")" << TEST_EOL;
+
+  auto expect_same_return_type =
+      _STD is_same_v<input_return_type_t, TestType::ReturnCode_t>;
+  TEST_PROBEW(P1050, EXPECT_TRUE(expect_same_return_type),
+              << "TestType::ReturnCode_t matches input_return_type_t");
+
+  TEST_PROBEW(P1060, EXPECT_EQ(TestType::noexcept_v, expect_noexcept),
+              << "TestType::noexcept_v is " << expect_noexcept);
+
+  TEST_PROBEW(P1070, EXPECT_EQ(TestType::const_v, expect_const),
+              << "TestType::const_v is " << expect_const);
+
+  TEST_PROBEW(P1080, EXPECT_EQ(TestType::reference_v, expect_reference),
+              << "TestType::reference_v is " << expect_reference);
+
+  TEST_PROBEW(P1090,
+              EXPECT_EQ(TestType::rvalue_reference_v, expect_rvalue_reference),
+              << "TestType::rvalue_reference_v is " << expect_rvalue_reference);
 }
 #endif
 #ifdef UT02

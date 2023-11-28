@@ -14,9 +14,10 @@
 #define EDCPP_UNIT_TEST_BEGIN namespace EDCPP_UNIT_TEST_NAMESPACE {
 #define EDCPP_UNIT_TEST_END }
 
-
 #define USING_EDCPP_UNIT_TEST using namespace EDCPP_UNIT_TEST_NAMESPACE;
 // Make the list format better in VS
-#define START_EDCPP_TEST_TYPE_COLLECTION testing::Types<
-#define END_EDCPP_TEST_TYPE_COLLECTION >
+#define DECLARE_TEST_TYPE_COLLECTION(COLLECTION) \
+  using COLLECTION = testing::Types <
+#define END_TEST_TYPE_COLLECTION >
+
 #endif

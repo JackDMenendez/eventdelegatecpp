@@ -1,5 +1,6 @@
 #ifndef EVENT_CONCEPTS_H
 #define EVENT_CONCEPTS_H
+
 #include <type_traits>
 #include "ed_base.h"
 #include "ed_traits.h"

@@ -45,7 +45,7 @@ set(eventdelegatecpp_headers
 
 set(eventdelegatecpp_test_source
         "test/source/tests/DelegateUnitGTest.cpp" "test/source/tests/ConceptsUnitGTest.cpp"
- "test/include/util/ghelper.h" "test/source/tests/WildWestUnitGTest.cpp" "test/source/tests/IntermediateMemberWrapperGTest.cpp" "test/include/test_functions.h" "test/source/util/test_functions.cpp")
+ "test/include/util/ghelper.h" "test/source/tests/WildWestUnitGTest.cpp" "test/source/tests/IntermediateMemberWrapperGTest.cpp" "test/include/test_functions.h" "test/source/util/test_functions.cpp" "test/include/TestFixtureFunctionType.h")
 
 set(eventdeletatecpp_test_headers
         "test/include/util/unit_test.h"

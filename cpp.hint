@@ -9,5 +9,10 @@
 #define EDCPP_UNIT_TEST_BEGIN namespace EDCPP_COMBINE(unit_test) {
 #define EDCPP_UNIT_TEST_END }
 #define USING_EDCPP_UNIT_TEST
-#define START_EDCPP_TEST_TYPE_COLLECTION testing::Types<
-#define END_EDCPP_TEST_TYPE_COLLECTION >
+#define DECLARE_TEST_TYPE_COLLECTION(COLLECTION) using COLLECTION = testing::Types<
+#define END_TEST_TYPE_COLLECTION >
+#define _STD ::std::
+#define EDCPP_BEGIN_NAMESPACE namespace MEDCPP {
+#define EDCPP_END_NAMESPACE }
+#define TFFT
+#define TYPED_TEST_TT01
