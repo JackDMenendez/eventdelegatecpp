@@ -46,6 +46,21 @@ struct func_yield_trait_values {
   /// @return true if the function is not declared const
   static constexpr bool const_v = _fyt_CONST;
 };
+/// The general case for function traits, well, general enough for now
+/// .
+/// @tparam _fyt_RETURN_CODE The return type of the function
+/// @tparam _fyt_OBJECT the object type owning the method.
+/// @tparam _fyt_NOEXCEPT true if the function is noexcept, false if not
+/// @tparam _fyt_CONST true if the function is const, false if not
+/// @tparam _fyt_FUNCTION_PARAM_LIST The arguments of the function or method
+template <class _fyt_RETURN_CODE,
+          class _fyt_OBJECT,
+          bool _fyt_NOEXCEPT,
+          bool _fyt_CONST,
+          class... _fyt_FUNCTION_PARAM_LIST>
+struct func_yield_traits {
+  ;
+};
 /// @brief Internal function that returns the function type given the template
 /// parameters
 ///
@@ -83,24 +98,20 @@ struct func_yield_trait_values {
 /// @see value_type_true
 template <class _fyt_RETURN_CODE,
           bool _fyt_NOEXCEPT,
-          bool _fyt_CONST,
           class... _fyt_FUNCTION_PARAM_LIST>
-struct func_yield_traits
-    : public func_yield_trait_values<_fyt_NOEXCEPT, _fyt_CONST> {
+struct func_yield_traits<_fyt_RETURN_CODE,
+                         TheVoidType,
+                         _fyt_NOEXCEPT,
+                         false,
+                         _fyt_FUNCTION_PARAM_LIST...>
+    : public func_yield_trait_values<_fyt_NOEXCEPT, false> {
   /// Determines the function type based on the template parameters
   using FunctionType_t = typename _STD disjunction<
-      // R(Args ...) noexcept const
-      value_type_true<(_fyt_NOEXCEPT && _fyt_CONST),
-                      _fyt_RETURN_CODE(_fyt_FUNCTION_PARAM_LIST...)
-                          const noexcept>,
-      // R(Args ...) const
-      value_type_true<((!_fyt_NOEXCEPT) && _fyt_CONST),
-                      _fyt_RETURN_CODE(_fyt_FUNCTION_PARAM_LIST...) const>,
       // R(Args ...) noexcept
-      value_type_true<(_fyt_NOEXCEPT && (!_fyt_CONST)),
+      value_type_true<(_fyt_NOEXCEPT),
                       _fyt_RETURN_CODE(_fyt_FUNCTION_PARAM_LIST...) noexcept>,
       // R(Args ...)
-      value_type_true<((!_fyt_NOEXCEPT) && (!_fyt_CONST)),
+      value_type_true<(!_fyt_NOEXCEPT),
                       _fyt_RETURN_CODE(_fyt_FUNCTION_PARAM_LIST...)>>::type;
 
   /// The function pointer type associated with the function type give by FT
@@ -126,27 +137,20 @@ struct func_yield_traits
       function_param_count_v == 1 &&
       (is_default_delegate_v || _STD is_base_of_v<Info, NthParam_t<0>>);
 };
-template <bool _fyt_NOEXCEPT,
-          bool _fyt_CONST,
-          class... _fyt_FUNCTION_PARAM_LIST>
+template <bool _fyt_NOEXCEPT, class... _fyt_FUNCTION_PARAM_LIST>
 struct func_yield_traits<TheVoidType,
+                         TheVoidType,
                          _fyt_NOEXCEPT,
-                         _fyt_CONST,
+                         false,
                          _fyt_FUNCTION_PARAM_LIST...>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, _fyt_CONST> {
+    : public func_yield_trait_values<_fyt_NOEXCEPT, false> {
   /// Determines the function type based on the template parameters
   using FunctionType_t = typename _STD disjunction<
-      // R(Args ...) noexcept const
-      value_type_true<(_fyt_NOEXCEPT && _fyt_CONST),
-                      void(_fyt_FUNCTION_PARAM_LIST...) const noexcept>,
-      // R(Args ...) const
-      value_type_true<((!_fyt_NOEXCEPT) && _fyt_CONST),
-                      void(_fyt_FUNCTION_PARAM_LIST...) const>,
       // R(Args ...) noexcept
-      value_type_true<(_fyt_NOEXCEPT && (!_fyt_CONST)),
+      value_type_true<(_fyt_NOEXCEPT),
                       void(_fyt_FUNCTION_PARAM_LIST...) noexcept>,
       // R(Args ...)
-      value_type_true<((!_fyt_NOEXCEPT) && (!_fyt_CONST)),
+      value_type_true<(!_fyt_NOEXCEPT),
                       void(_fyt_FUNCTION_PARAM_LIST...)>>::type;
 
   /// The function pointer type associated with the function type give by FT
@@ -203,27 +207,20 @@ struct func_yield_traits<TheVoidType,
 ///
 /// @see default_type
 /// @see value_type_true
-template <class _fyt_RETURN_CODE, bool _fyt_NOEXCEPT, bool _fyt_CONST>
+template <class _fyt_RETURN_CODE, bool _fyt_NOEXCEPT>
 struct func_yield_traits<_fyt_RETURN_CODE,
+                         TheVoidType,
                          _fyt_NOEXCEPT,
-                         _fyt_CONST,
+                         false,
                          TheVoidType>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, _fyt_CONST> {
+    : public func_yield_trait_values<_fyt_NOEXCEPT, false> {
   /// Determines the function type based on the template parameters
   /// @todo fix the problem with the parameter list void creating func(void)
   using FunctionType_t = typename _STD disjunction<
-      // R() noexcept const
-      value_type_true<(_fyt_NOEXCEPT && _fyt_CONST),
-                      _fyt_RETURN_CODE() const noexcept>,
-      // R() const
-      value_type_true<((!_fyt_NOEXCEPT) && _fyt_CONST),
-                      _fyt_RETURN_CODE() const>,
       // R() noexcept
-      value_type_true<(_fyt_NOEXCEPT && (!_fyt_CONST)),
-                      _fyt_RETURN_CODE() noexcept>,
+      value_type_true<_fyt_NOEXCEPT, _fyt_RETURN_CODE() noexcept>,
       // R()
-      value_type_true<((!_fyt_NOEXCEPT) && (!_fyt_CONST)),
-                      _fyt_RETURN_CODE()>>::type;
+      value_type_true<!_fyt_NOEXCEPT, _fyt_RETURN_CODE()>>::type;
 
   /// The function pointer type associated with the function type give by FT
   using FunctionPointer_t = typename _STD add_pointer<FunctionType_t>::type;
@@ -241,20 +238,20 @@ struct func_yield_traits<_fyt_RETURN_CODE,
   static constexpr bool is_default_delegate_v = false;
   static constexpr bool is_standard_delegate_v = false;
 };
-template <bool _fyt_NOEXCEPT, bool _fyt_CONST>
-struct func_yield_traits<TheVoidType, _fyt_NOEXCEPT, _fyt_CONST, TheVoidType>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, _fyt_CONST> {
+template <bool _fyt_NOEXCEPT>
+struct func_yield_traits<TheVoidType,
+                         TheVoidType,
+                         _fyt_NOEXCEPT,
+                         false,
+                         TheVoidType>
+    : public func_yield_trait_values<_fyt_NOEXCEPT, false> {
   /// Determines the function type based on the template parameters
   /// @todo fix the problem with the parameter list void creating func(void)
   using FunctionType_t = typename _STD disjunction<
-      // R() noexcept const
-      value_type_true<(_fyt_NOEXCEPT && _fyt_CONST), void() const noexcept>,
-      // R() const
-      value_type_true<((!_fyt_NOEXCEPT) && _fyt_CONST), void() const>,
       // R() noexcept
-      value_type_true<(_fyt_NOEXCEPT && (!_fyt_CONST)), void() noexcept>,
+      value_type_true<_fyt_NOEXCEPT, void() noexcept>,
       // R()
-      value_type_true<((!_fyt_NOEXCEPT) && (!_fyt_CONST)), void()>>::type;
+      value_type_true<!_fyt_NOEXCEPT, void()>>::type;
 
   /// The function pointer type associated with the function type give by FT
   using FunctionPointer_t = typename _STD add_pointer<FunctionType_t>::type;
@@ -278,10 +275,39 @@ struct func_yield_traits<TheVoidType, _fyt_NOEXCEPT, _fyt_CONST, TheVoidType>
 /// delegates will end up in this bucket.
 template <class C>
 struct func_y_traits {};
+/// A basic function type with no return with parameters and no following
+/// qualifiers
+template <class... FunctionParamList>
+struct func_y_traits<void(FunctionParamList...)>
+    : func_yield_traits<void,  // return type
+                        TheVoidType,
+                        false,                // noexcept
+                        false,                // const
+                        FunctionParamList...  // function arguments
+                        > {};
+/// A basic method type with no return with parameters and no following
+/// qualifiers
+template <class ObjectType, class... FunctionParamList>
+struct func_y_traits<void (ObjectType::*)(FunctionParamList...)>
+    : func_yield_traits<void,  // return type
+                        ObjectType,
+                        false,                // noexcept
+                        false,                // const
+                        FunctionParamList...  // function arguments
+                        > {};
 /// A basic function type with parameters and no following qualifiers
 template <class ReturnCode, class... FunctionParamList>
 struct func_y_traits<ReturnCode(FunctionParamList...)>
-    : func_yield_traits<ReturnCode,           // return type
+    : func_yield_traits<ReturnCode,  // return type
+                        TheVoidType,
+                        false,                // noexcept
+                        false,                // const
+                        FunctionParamList...  // function arguments
+                        > {};
+template <class ReturnCode, class ObjectType, class... FunctionParamList>
+struct func_y_traits<ReturnCode (ObjectType::*)(FunctionParamList...)>
+    : func_yield_traits<ReturnCode,  // return type
+                        ObjectType,
                         false,                // noexcept
                         false,                // const
                         FunctionParamList...  // function arguments
@@ -290,32 +316,54 @@ struct func_y_traits<ReturnCode(FunctionParamList...)>
 template <class ReturnCode>
 struct func_y_traits<ReturnCode()>
     : func_yield_traits<ReturnCode,  // return type
-                        false,       // noexcept
-                        false        // const
+                        TheVoidType,
+                        false,  // noexcept
+                        false   // const
+                        > {};
+/// A basic method type with no parameters and no following qualifiers
+template <class ReturnCode, class ObjectType>
+struct func_y_traits<ReturnCode (ObjectType::*)()>
+    : func_yield_traits<ReturnCode,  // return type
+                        ObjectType,
+                        false,  // noexcept
+                        false   // const
                         > {};
 
 /// A basic function type with noexcept
 template <class ReturnCode, class... FunctionParamList>
 struct func_y_traits<ReturnCode(FunctionParamList...) noexcept>
-    : func_yield_traits<ReturnCode,           // return type
+    : func_yield_traits<ReturnCode,  // return type
+                        TheVoidType,
+                        true,                 // noexcept
+                        false,                // const
+                        FunctionParamList...  // function arguments
+                        > {};
+/// A basic method type with noexcept.
+template <class ReturnCode, class ObjectType, class... FunctionParamList>
+struct func_y_traits<ReturnCode (ObjectType::*)(FunctionParamList...) noexcept>
+    : func_yield_traits<ReturnCode,  // return type
+                        ObjectType,
                         true,                 // noexcept
                         false,                // const
                         FunctionParamList...  // function arguments
                         > {};
 
-/// A basic function type with const
-template <class ReturnCode, class... FunctionParamList>
-struct func_y_traits<ReturnCode(FunctionParamList...) const>
-    : func_yield_traits<ReturnCode,           // return type
+/// A method type with const
+template <class ReturnCode, class ObjectType, class... FunctionParamList>
+struct func_y_traits<ReturnCode (ObjectType::*)(FunctionParamList...) const>
+    : func_yield_traits<ReturnCode,  // return type
+                        ObjectType,
                         false,                // noexcept
                         true,                 // const
                         FunctionParamList...  // function arguments
                         > {};
 
 /// A basic function type with const noexcept
-template <class ReturnCode, class... FunctionParamList>
-struct func_y_traits<ReturnCode(FunctionParamList...) const noexcept>
-    : func_yield_traits<ReturnCode,           // return type
+template <class ReturnCode, class ObjectType, class... FunctionParamList>
+struct func_y_traits<ReturnCode (ObjectType::*)(FunctionParamList...)
+                         const noexcept>
+    : func_yield_traits<ReturnCode,  // return type
+                        ObjectType,
                         true,                 // noexcept
                         true,                 // const
                         FunctionParamList...  // function arguments

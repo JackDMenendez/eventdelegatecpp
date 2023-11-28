@@ -20,6 +20,43 @@ class TestFunction_TypeConstants {
   static constexpr bool expect_noexcept = input_noexcept_t;
   static constexpr bool expect_const = input_const;
 };
+/// The general case of the test function type container.
+///
+/// @tparam iFNCTNPTR the type of the test input function pointer type for
+/// example int(*)(int) const noexcept or decltype(&foo) where foo is a
+/// function.
+/// @tparam iRTRNCD the type of the test input return type such as int, void,
+/// etc
+/// @tparam iOBJECT the type of object owning the function as a method.
+/// @tparam iNXCPT boolean test input noexcept indicator true means noexcept was
+/// specified false means noexcept was not specified. There is no corresponding
+/// expected value for this parameter because this parameter is reflected by the
+/// container as output.
+/// @tparam iCNST boolean test input const indicator true means the const
+/// keyword was specified, false means the const keyword was specified. There is
+/// no corresponding expected value for this parameter because this parameter is
+/// reflected by the container as output.
+/// @tparam xPRMCNT sizeof test output expected parameter count, the number of
+/// parameters expected to be in the function type specified by iFNCTNPTR.
+/// @tparam xDFLTDLGT boolean test output expecting default delegate, true
+///  means the iFNCNPTR is a default delegate, false means the function is not a
+///  default delegate.
+/// @tparam xPSTDDSTDDLGT boolean test output expecting a standard delegate
+/// which is any function that has a parameter inheriting from Info. True means
+/// that the function is a standard delegate and false means the function is not
+/// a standard delegate.
+/// @tparam xINPARAMS expected function parameter type list. These are the
+/// parameters to the function defined by iFNCTNPTR.
+template <class iFNCTNPTR,
+          class iRTRNCD,
+          class iOBJECT,
+          bool iNXCPT,
+          bool iCNST,
+          size_t xPRMCNT,
+          bool xDFLTDLGT,
+          bool xPSTDDSTDDLGT,
+          class... xINPARAMS>
+class TestFunction_TypeContainer {};
 /// This template class is used as a TestFixture´s TypeParam inside a Google
 /// Typed Test.
 ///
@@ -67,10 +104,6 @@ class TestFunction_TypeConstants {
 /// specified false means noexcept was not specified. There is no corresponding
 /// expected value for this parameter because this parameter is reflected by the
 /// container as output.
-/// @tparam iCNST boolean test input const indicator true means the const
-/// keyword was specified, false means the const keyword was specified. There is
-/// no corresponding expected value for this parameter because this parameter is
-/// reflected by the container as output.
 /// @tparam xPRMCNT sizeof test output expected parameter count, the number of
 /// parameters expected to be in the function type specified by iFNCTNPTR.
 /// @tparam xDFLTDLGT boolean test output expecting default delegate, true
@@ -85,14 +118,21 @@ class TestFunction_TypeConstants {
 template <class iFNCTNPTR,
           class iRTRNCD,
           bool iNXCPT,
-          bool iCNST,
           size_t xPRMCNT,
           bool xDFLTDLGT,
           bool xPSTDDSTDDLGT,
           class... xINPARAMS>
-class TestFunction_TypeContainer
+class TestFunction_TypeContainer<iFNCTNPTR,
+                                 iRTRNCD,
+                                 TheVoidType,
+                                 iNXCPT,
+                                 false,
+                                 xPRMCNT,
+                                 xDFLTDLGT,
+                                 xPSTDDSTDDLGT,
+                                 xINPARAMS...>
     : public TestFunction_TypeConstants<iNXCPT,
-                                        iCNST,
+                                        false,
                                         xPRMCNT,
                                         xDFLTDLGT,
                                         xPSTDDSTDDLGT> {
@@ -104,21 +144,21 @@ class TestFunction_TypeContainer
 };
 template <class iFNCTNPTR,
           bool iNXCPT,
-          bool iCNST,
           size_t xPRMCNT,
           bool xDFLTDLGT,
           bool xPSTDDSTDDLGT,
           class... xINPARAMS>
 class TestFunction_TypeContainer<iFNCTNPTR,
                                  TheVoidType,
+                                 TheVoidType,
                                  iNXCPT,
-                                 iCNST,
+                                 false,
                                  xPRMCNT,
                                  xDFLTDLGT,
                                  xPSTDDSTDDLGT,
                                  xINPARAMS...>
     : public TestFunction_TypeConstants<iNXCPT,
-                                        iCNST,
+                                        false,
                                         xPRMCNT,
                                         xDFLTDLGT,
                                         xPSTDDSTDDLGT> {
@@ -140,21 +180,22 @@ class TestFixture_FunctionType : public testing::Test {};
 template <class FNCTNPTR,
           class RTRNCD,
           bool NXCPT,
-          bool CNST,
           size_t XPRMCNT,
           bool XDFLTDLGT,
           bool XPSTDDSTDDLGT,
           class... PARAMS>
 class TestFixture_FunctionType<TestFunction_TypeContainer<FNCTNPTR,
                                                           RTRNCD,
+                                                          TheVoidType,
                                                           NXCPT,
-                                                          CNST,
+                                                          false,
                                                           XPRMCNT,
                                                           XDFLTDLGT,
                                                           XPSTDDSTDDLGT,
                                                           PARAMS...>>
     : public testing::Test,
-      public _EDCPP func_yield_traits<RTRNCD, NXCPT, CNST, PARAMS...> {
+      public _EDCPP
+          func_yield_traits<RTRNCD, TheVoidType, NXCPT, false, PARAMS...> {
  public:
   static void printTypes() {
     TEST_TRACE() << "Args";
@@ -162,8 +203,8 @@ class TestFixture_FunctionType<TestFunction_TypeContainer<FNCTNPTR,
     MINFO << ")" << TEST_EOL;
   }
 };
-#define TFFT(F, R, N, C, XPRM, XDFLT, XSTDDFLT, ...)                       \
-  TestFunction_TypeContainer<decltype(&F), R, N, C, XPRM, XDFLT, XSTDDFLT, \
+#define TFFT(F, R, O, N, C, XPRM, XDFLT, XSTDDFLT, ...)                       \
+  TestFunction_TypeContainer<decltype(&F), R, O, N, C, XPRM, XDFLT, XSTDDFLT, \
                              __VA_ARGS__>
 EDCPP_UNIT_TEST_END
 #endif
