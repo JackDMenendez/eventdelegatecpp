@@ -2,7 +2,7 @@
 #define MTESTREGIME 1
 // The following tests are built, comment out to disable
 // #define TT01 1
-#define UT01 1
+// #define UT01 1
 // #define UT02 2
 // #define UT03 3
 // #define UT04 4

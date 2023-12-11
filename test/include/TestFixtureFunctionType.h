@@ -9,7 +9,8 @@ template <bool iNXCPT,
           bool iCNST,
           size_t xPRMCNT,
           bool xDFLTDLGT,
-          bool xPSTDDSTDDLGT>
+          bool xPSTDDSTDDLGT,
+          bool xMethod>
 class TestFunction_TypeConstants {
  public:
   static constexpr bool input_noexcept_t = iNXCPT;
@@ -19,6 +20,7 @@ class TestFunction_TypeConstants {
   static constexpr bool expect_standard_delegate = xPSTDDSTDDLGT;
   static constexpr bool expect_noexcept = input_noexcept_t;
   static constexpr bool expect_const = input_const;
+  static constexpr bool expect_method = xMethod;
 };
 /// The general case of the test function type container.
 ///
@@ -95,6 +97,7 @@ class TestFunction_TypeContainer {};
 /// specified by the function and the expected value is the same as the input
 /// value.
 ///
+///
 /// @tparam iFNCTNPTR the type of the test input function pointer type for
 /// example int(*)(int) const noexcept or decltype(&foo) where foo is a
 /// function.
@@ -135,7 +138,8 @@ class TestFunction_TypeContainer<iFNCTNPTR,
                                         false,
                                         xPRMCNT,
                                         xDFLTDLGT,
-                                        xPSTDDSTDDLGT> {
+                                        xPSTDDSTDDLGT,
+                                        false> {
  public:
   /// @brief The input function return type.
   using input_return_type_t = iRTRNCD;
@@ -161,7 +165,8 @@ class TestFunction_TypeContainer<iFNCTNPTR,
                                         false,
                                         xPRMCNT,
                                         xDFLTDLGT,
-                                        xPSTDDSTDDLGT> {
+                                        xPSTDDSTDDLGT,
+                                        false> {
  public:
   /// @brief The input function return type.
   using input_return_type_t = TheVoidType;
@@ -203,8 +208,5 @@ class TestFixture_FunctionType<TestFunction_TypeContainer<FNCTNPTR,
     MINFO << ")" << TEST_EOL;
   }
 };
-#define TFFT(F, R, O, N, C, XPRM, XDFLT, XSTDDFLT, ...)                       \
-  TestFunction_TypeContainer<decltype(&F), R, O, N, C, XPRM, XDFLT, XSTDDFLT, \
-                             __VA_ARGS__>
 EDCPP_UNIT_TEST_END
 #endif

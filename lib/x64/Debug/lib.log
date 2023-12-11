@@ -1,0 +1,9 @@
+﻿  pch.cpp
+  default_sender.cpp
+  delegate.cpp
+  event_delegate.cpp
+  lib.cpp
+  Generando código...
+D:\sandbox\jackd\repos\eventdelegatecpp\source\default_sender.cpp(5,1): error C1010: final de archivo inesperado al buscar la directiva de encabezado precompilado. Compruebe si olvidó agregar '#include "pch.h"' al código fuente?
+D:\sandbox\jackd\repos\eventdelegatecpp\source\delegate.cpp(8,1): error C1010: final de archivo inesperado al buscar la directiva de encabezado precompilado. Compruebe si olvidó agregar '#include "pch.h"' al código fuente?
+D:\sandbox\jackd\repos\eventdelegatecpp\source\event_delegate.cpp(5,1): error C1010: final de archivo inesperado al buscar la directiva de encabezado precompilado. Compruebe si olvidó agregar '#include "pch.h"' al código fuente?

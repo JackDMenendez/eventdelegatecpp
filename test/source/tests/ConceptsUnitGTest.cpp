@@ -39,6 +39,7 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <type_traits>
+#include <vector>
 #define MTESTREGIME 1
 #include <concepts>
 #include "TestFixtureFunctionType.h"
@@ -54,6 +55,353 @@
 EDCPP_USING
 USING_EDCPP_UNIT_TEST
 
+DECLARE_TEST_TYPE_COLLECTION(ED_UnitTest_TypeCollection,
+                             TFFT(void_f_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(void_f_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(void_f_int_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int),
+                             TFFT(void_f_int_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int),
+                             TFFT(void_f_intR_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&),
+                             TFFT(void_f_intR_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&),
+                             TFFT(void_f_intRR_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&&),
+                             TFFT(void_f_intRR_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&&),
+                             TFFT(void_f_intRC_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&),
+                             TFFT(void_f_intRC_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&),
+                             TFFT(void_f_intRRC_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&&),
+                             TFFT(void_f_intRRC_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&&),
+                             TFFT(void_f_intP_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int*),
+                             TFFT(void_f_intPC_except,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const*),
+                             TFFT(void_f_intPC_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const*),
+                             TFFT(void_f_intP_noexcept,
+                                  TheVoidType,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int*),
+                             TFFT(int_f_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(int_f_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(int_f_int_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int),
+                             TFFT(int_f_int_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int),
+                             TFFT(int_f_intR_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&),
+                             TFFT(int_f_intR_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&),
+                             TFFT(int_f_intRR_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&&),
+                             TFFT(int_f_intRR_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int&&),
+                             TFFT(int_f_intRC_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&),
+                             TFFT(int_f_intRC_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&),
+                             TFFT(int_f_intRRC_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&&),
+                             TFFT(int_f_intRRC_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const&&),
+                             TFFT(int_f_intP_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int*),
+                             TFFT(int_f_intPC_except,
+                                  int,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const*),
+                             TFFT(int_f_intPC_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int const*),
+                             TFFT(int_f_intP_noexcept,
+                                  int,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  int*),
+                             ///////////////////
+                             TFFT(_TC1R_f_except,  //
+                                  _TC1&,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(_TC1_f_noexcept,
+                                  _TC1,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  0,
+                                  false,
+                                  false,
+                                  TheVoidType),
+                             TFFT(_TC1_f_int__TC1_noexcept,
+                                  _TC1,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  2,
+                                  false,
+                                  false,
+                                  int,
+                                  _TC1),
+                             TFFT(_TC1R_f__TC1R_except,
+                                  _TC1&,
+                                  TheVoidType,
+                                  false,
+                                  false,
+                                  1,
+                                  false,
+                                  false,
+                                  _TC1&),
+                             TFFT(_TC1R_f_intR__TC1RR_noexcept,
+                                  _TC1&,
+                                  TheVoidType,
+                                  true,
+                                  false,
+                                  2,
+                                  false,
+                                  false,
+                                  int&,
+                                  _TC1&&),
+                             C09998,
+                             C09999,
+                             C10000,
+                             C10001);  // ED_UnitTest_TypeCollection
+
+/// Create a test suite named TestFixture_FunctionType
+///
+/// Create the test suite from the TestFixture called TestFixture_FunctionType
+/// and the TypeCollection called ED_UnitTest_TypeCollection
+TYPED_TEST_SUITE(TestFixture_FunctionType, ED_UnitTest_TypeCollection);
 #ifdef TT01
 
 /// @anchor A_TT01
@@ -68,6 +416,23 @@ USING_EDCPP_UNIT_TEST
 /// TestFixture_FunctionType inherits from test::Test and from func_yield_traits
 /// making all of the traits used by the Delegate class. This test validates
 /// that all the traits are parsed properly.
+///
+/// Test Objectives
+/// ---------------
+/// Validate that different function pointer types that have equivalent function
+/// types yield the same function type. This allows all equivalent functions to
+/// instantiate the same Delegate type and subscribe to the same event. For
+/// example, the function pointer types:
+/// <code>
+/// TypeParam::input_function_pointer_type_t(int __cdecl(int * __ptr64)
+/// noexcept) TestFixture::FunctionPointer_t(int(__cdecl*)(int* __ptr64)
+/// noexcept)
+/// </code>
+/// Are equivalent functions as far as the delegate is concerned.
+///
+/// Note that the two function pointer types above are equivalent but not the
+/// same type.
+/// Please see @ref function_equivalence Function Equivalence for more.
 ///
 /// The following chart shows the function types supported by this
 /// specialization of func_yield_traits.h in ed_traits. The test functions can b
@@ -101,7 +466,6 @@ USING_EDCPP_UNIT_TEST
 /// P1000 | Test ability to parse the parameters of the function type.
 /// P1020 | Test detection of default delegate.
 /// P1030 | Test detection of standard delegate.
-/// P1040 | Test rebuilding of the function pointer type.
 /// P1050 | Test reflection of the return type.
 /// P1060 | Test reflection of the noexcept.
 ///
@@ -109,6 +473,15 @@ USING_EDCPP_UNIT_TEST
 /// the test as a function.
 TVOID TYPED_TEST_TT01(TestFixture_FunctionType) {
   TEST_TRACE() << "TYPED_TEST_TT01 RegularFunctionPtrs typed test" << TEST_EOL;
+  ////////////////////////////////////////////////////////////////////////
+  TEST_TRACE() << "Test Function Equivalence" << TEST_EOL;
+  TEST_TRACE() << "func_yield_traits specialization: " << TestFixture::specialization_id_v << TEST_EOL;
+  TEST_TRACE() << "TypeParam::input_function_pointer_type_t("
+               << typeid(TypeParam::input_function_pointer_type_t).name() << ")"
+               << TEST_EOL;
+  TEST_TRACE() << "TestFixture::FunctionPointer_t("
+               << typeid(TestFixture::FunctionPointer_t).name() << ")"
+               << TEST_EOL;
   ////////////////////////////////////////////////////////////////////////
   TEST_PROBEW(P1000,
               EXPECT_EQ(TestFixture::function_param_count_v,
@@ -134,18 +507,6 @@ TVOID TYPED_TEST_TT01(TestFixture_FunctionType) {
               << "TypeParam::expect_standard_delegate("
               << TypeParam::expect_standard_delegate << ")");
   ////////////////////////////////////////////////////////////////////////
-  TEST_TRACE() << "P1040 TypeParam::input_function_pointer_type_t("
-               << typeid(TypeParam::input_function_pointer_type_t).name() << ")"
-               << TEST_EOL;
-  TEST_TRACE() << "P1040 TestFixture::FunctionPointer_t("
-               << typeid(TestFixture::FunctionPointer_t).name() << ")"
-               << TEST_EOL;
-  auto l_expect_same_function_type =
-      _STD is_same_v<TypeParam::input_function_pointer_type_t,
-                     TestFixture::FunctionPointer_t>;
-  TEST_PROBEW(P1040, EXPECT_TRUE(l_expect_same_function_type),
-              << "FunctionPointer_t matches ");
-  ////////////////////////////////////////////////////////////////////////
   TEST_TRACE() << "P1050 TypeParam::input_return_type_t("
                << typeid(TypeParam::input_return_type_t).name() << ")"
                << TEST_EOL;
@@ -157,7 +518,8 @@ TVOID TYPED_TEST_TT01(TestFixture_FunctionType) {
               << "ReturnCode_t matches input_return_type_t");
   ////////////////////////////////////////////////////////////////////////
   TEST_PROBEW(P1060,
-              MTEST_EQ(TestFixture::noexcept_v, TypeParam::expect_noexcept));
+              MTEST_EQ(TestFixture::noexcept_v, TypeParam::expect_noexcept),
+              "Exception environment correct");
   //<< "TestType::noexcept_v(" << TestFixture::noexcept_v << ") == "
   //<< "TypeParam::expect_noexcept(" << TypeParam::expect_noexcept << ")");
   ////////////////////////////////////////////////////////////////////////

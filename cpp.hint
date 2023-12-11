@@ -16,3 +16,5 @@
 #define EDCPP_END_NAMESPACE }
 #define TFFT
 #define TYPED_TEST_TT01
+#define TCONT(TYPENUM, CONTAINER)
+#define F10000
