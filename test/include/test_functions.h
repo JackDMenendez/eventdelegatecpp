@@ -187,8 +187,8 @@ TCONT(C10000,
 #define D10001 R10001 F10001(A10001D1) noexcept
 // function implementation
 #define T10001 D10001 B10001
-/// @test function f_10000 container(s) C10000
-/// function returns R10000 arguments A10000
+/// @test function f_10001 container(s) C10001
+/// function returns R10001 arguments A10001
 D10001;
 // function type container for unit type testing, TheVoidType is a type that is
 // used for specialization for void return types.
@@ -202,9 +202,42 @@ TCONT(C10001,
            DEFAULT,
            STANDARD,
            A10001T1));
-void void_f_const_Info_noexcept(Info const&) noexcept;
-void void_f_p1_intP_except(int* ctr);
-void void_f_p1_intP_noexcept(int* ctr) noexcept;
+////////////////////////////////////////////////////////////////////////////////
+// return code
+#define R10002 void
+// function name
+#define F10002 f_10002
+// The object type
+#define O10002 TheVoidType
+// function parameter(s)
+#define A10002T1 int*
+#define A10002D1 A10002T1 l_intP
+// function body
+#define B10002                                     \
+  {                                                \
+    TEST_TRACE() << "f_10002 running" << TEST_EOL; \
+    *l_intP += 1;                                  \
+  }
+// function definition
+#define D10002 R10002 F10002(A10002D1) noexcept
+// function implementation
+#define T10002 D10002 B10002
+/// @test function f_10002 container(s) C10000
+/// function returns R10002 arguments A10002
+/// increments value pointed to by l_intP
+D10002;
+// function type container for unit type testing, TheVoidType is a type that is
+// used for specialization for void return types.
+TCONT(C10002,
+      TFFT(F10002,
+           TheVoidType,
+           O10002,
+           NOEXCEPT,
+           NONCONST,
+           1,
+           NONDEFAULT,
+           NONSTANDARD,
+           A10002T1));
 void void_testfunction_intP(int a, int* b);
 int* intP_testfunction_intP(int a, int* b);
 int* intP_testfunction_intP_noexcept(int a, int* b) noexcept;

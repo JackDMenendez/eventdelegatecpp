@@ -53,7 +53,6 @@
 #include <type_traits>
 #include "ed_base.h"
 #include "senders/default_sender.h"
-// todo need to add verbage about function equivalence.
 EDCPP_BEGIN
 /// @brief Allow return of a type that is an alias for the partial type void but
 /// can passed as a type.
@@ -79,23 +78,44 @@ template <typename T>
 struct default_type : std::true_type {
   using type = T;
 };
-
+/// @brief Comparable values for use with unit tests and disjunctions to test
+/// which specialization was used.
+/// @details The values are not important, only that they are different.
+/// The values do not determine specialization but specialization determines the
+/// value used.
+enum class func_trait_specialization {
+  GENERAL = 0,         ///< The default func_yield_traits
+  RC_PARAMS_EXCEPT,  ///< func_yield_traits with return code and parameters
+                       ///< and exception regime.
+  VOID_PARAMS_EXCEPT,  ///< func_yield_traits with void return, parameters, and
+                       ///< exception regime.
+  RC__EXCEPT,   ///< func_yield_traits with return code, no parameters, and
+                ///< exception regime
+  VOID__EXCEPT  ///< func_yield_traits with void return, no parameters, and
+                ///< exception regime
+};
 /// @brief The most efficient delegate.
 EDCPP_EXPORT using DefaultDelegate = void(Info const&) noexcept;
 /// @brief Allow access to function trait values
-/// @details Designed to be inherited by other classes that need access to thse
+/// @details Designed to be inherited by other classes that need access to these
 /// traits.
 /// @since 0.0.2
-/// @todo Add identifier to be able to identify the func_yield_traits
-/// specialization used.
 /// @tparam _fyt_NOEXCEPT true if the function is noexcept, false if not
-/// @tparam _fyt_CONST true if the function is const, false if not
+/// @tparam _fyt_CONST true if the function is const, false if no
+/// @tparam _fyt_SPECIALIZATION_ID a description of the specialization of
+/// func_yield_traits
+/// @tparam _fyt_SPECIALIZATION A comparable value for use with unit tests that
+/// can be checked to see if the expected specialization occurred.
 template <bool _fyt_NOEXCEPT,
           bool _fyt_CONST,
-          StringTParm _fyt_SPECIALIZATION_ID>
+          StringTParm _fyt_SPECIALIZATION_ID,
+          func_trait_specialization _fyt_SPECIALIZATION>
 struct func_yield_trait_values {
   /// The exception regime noexcept or not
   static constexpr bool noexcept_v = _fyt_NOEXCEPT;
+  /// The specialization of func_yield_traits that was actually inferred by the
+  /// compiler
+  static constexpr int specialization_v = static_cast<int>(_fyt_SPECIALIZATION);
   /// The constness of the function
   ///
   /// @return true if the function is const
@@ -111,14 +131,19 @@ struct func_yield_trait_values {
 /// @tparam _fyt_NOEXCEPT true if the function is noexcept, false if not
 /// @tparam _fyt_CONST true if the function is const, false if not
 /// @tparam _fyt_FUNCTION_PARAM_LIST The arguments of the function or method
+/// @note Tried inheriting from func_yield but the compiler was not able to
+/// instantiate the type in the order we need.
+/// @todo move func_yild_traits_value from inherited to member.
 template <class _fyt_RETURN_CODE,
           class _fyt_OBJECT,
           bool _fyt_NOEXCEPT,
           bool _fyt_CONST,
           class... _fyt_FUNCTION_PARAM_LIST>
-struct func_yield_traits : public func_yield_trait_values<_fyt_NOEXCEPT,
-                                                          _fyt_CONST,
-                                                          "General Case"> {};
+struct func_yield_traits
+    : public func_yield_trait_values<_fyt_NOEXCEPT,
+                                     _fyt_CONST,
+                                     "No specialization",
+                                     func_trait_specialization::GENERAL> {};
 /// @brief A partial specialization for functions that are not non-static
 /// members of a class.
 ///
@@ -161,7 +186,11 @@ struct func_yield_traits<_fyt_RETURN_CODE,
                          _fyt_NOEXCEPT,
                          false,  // const specialization
                          _fyt_FUNCTION_PARAM_LIST...>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, false, "RC( params...)"> {
+    : public func_yield_trait_values<
+          _fyt_NOEXCEPT,
+          false,
+          "RC( params...)",
+          func_trait_specialization::RC_PARAMS_EXCEPT> {
   /// Determines the function type based on the template parameters
   using FunctionType_t = typename _STD disjunction<
       // R(Args ...) noexcept
@@ -200,7 +229,11 @@ struct func_yield_traits<TheVoidType,
                          _fyt_NOEXCEPT,
                          false,
                          _fyt_FUNCTION_PARAM_LIST...>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, false, "void(params...)"> {
+    : public func_yield_trait_values<
+          _fyt_NOEXCEPT,
+          false,
+          "void(params...)",
+          func_trait_specialization::VOID_PARAMS_EXCEPT> {
   /// Determines the function type based on the template parameters
   using FunctionType_t = typename _STD disjunction<
       // R(Args ...) noexcept
@@ -270,13 +303,17 @@ struct func_yield_traits<_fyt_RETURN_CODE,
                          _fyt_NOEXCEPT,
                          false,
                          TheVoidType>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, false, "RC()"> {
+    : public func_yield_trait_values<_fyt_NOEXCEPT,
+                                     false,
+                                     "RC()",
+                                     func_trait_specialization::RC__EXCEPT> {
   /// Determines the function type based on the template parameters
   /// @todo fix the problem with the parameter list void creating func(void)
   using FunctionType_t = typename _STD disjunction<
       // R() noexcept
       value_type_true<_fyt_NOEXCEPT, _fyt_RETURN_CODE() noexcept>,
       // R()
+
       value_type_true<!_fyt_NOEXCEPT, _fyt_RETURN_CODE()>>::type;
 
   /// The function pointer type associated with the function type give by FT
@@ -301,7 +338,10 @@ struct func_yield_traits<TheVoidType,
                          _fyt_NOEXCEPT,
                          false,
                          TheVoidType>
-    : public func_yield_trait_values<_fyt_NOEXCEPT, false, "void()"> {
+    : public func_yield_trait_values<_fyt_NOEXCEPT,
+                                     false,
+                                     "void()",
+                                     func_trait_specialization::VOID__EXCEPT> {
   /// Determines the function type based on the template parameters
   /// @todo fix the problem with the parameter list void creating func(void)
   using FunctionType_t = typename _STD disjunction<

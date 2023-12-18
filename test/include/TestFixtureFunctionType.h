@@ -23,7 +23,7 @@ class TestFunction_TypeConstants {
   static constexpr bool expect_method = xMethod;
 };
 /// The general case of the test function type container.
-///
+/// @todo Need to add func_trait_specialization for the case of a function
 /// @tparam iFNCTNPTR the type of the test input function pointer type for
 /// example int(*)(int) const noexcept or decltype(&foo) where foo is a
 /// function.

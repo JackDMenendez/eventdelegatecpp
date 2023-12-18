@@ -395,7 +395,8 @@ DECLARE_TEST_TYPE_COLLECTION(ED_UnitTest_TypeCollection,
                              C09998,
                              C09999,
                              C10000,
-                             C10001);  // ED_UnitTest_TypeCollection
+                             C10001,
+                             C10002);  // ED_UnitTest_TypeCollection
 
 /// Create a test suite named TestFixture_FunctionType
 ///
